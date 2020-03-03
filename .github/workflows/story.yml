@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-16.04
     steps:
       - uses: actions/checkout@v2
-      - name: Prerequisites
+      - name: Package
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential linux-libc-dev
@@ -28,6 +28,7 @@ jobs:
           mkdir release
           cd release
           cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr \
-                -DBUILD_GPU=ON -DBUILD_apps=ON -DBUILD_examples=ON \
+                -DBUILD_GPU=OFF -DBUILD_apps=OFF -DBUILD_examples=OFF \
                 -DCMAKE_INSTALL_PREFIX=/usr ..
           make
+          sudo make install
