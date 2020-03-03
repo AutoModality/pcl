@@ -25,3 +25,9 @@ jobs:
           sudo apt-get install -y libxmu-dev libxi-dev 
           sudo apt-get install -y mono-complete
           sudo apt-get install -y qt-sdk openjdk-8-jdk openjdk-8-jre
+          mkdir release
+          cd release
+          cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr \
+                -DBUILD_GPU=ON -DBUILD_apps=ON -DBUILD_examples=ON \
+                -DCMAKE_INSTALL_PREFIX=/usr ..
+          make
