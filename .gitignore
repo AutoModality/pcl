@@ -1,1 +1,2 @@
-release
+build
+debian/pcl.debhelper.log
