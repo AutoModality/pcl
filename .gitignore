@@ -1,2 +1,3 @@
 build
-debian/pcl.debhelper.log
+debian/pcl*
+debian/.debhelper
