@@ -1,7 +1,0 @@
-# see package.yml for usage 
-name: 'Build'
-description: 'Runs the make and creates a package'
-runs:
-  using: 'docker'
-  image: 'Dockerfile'
-  

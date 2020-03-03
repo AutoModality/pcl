@@ -6,7 +6,15 @@ on:
       - master
 jobs:
   build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     steps:
+      - name: Cache 
+        id: cache
+        uses: actions/cache@v1
+        with:
+          path: obj-x86_64-linux-gnu
+          key: pcl-cache
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/package@local
+      - name: Package
+        id: package
+        uses: AutoModality/action-package-debian-ros@v2.0.0
