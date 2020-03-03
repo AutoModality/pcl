@@ -9,26 +9,4 @@ jobs:
     runs-on: ubuntu-16.04
     steps:
       - uses: actions/checkout@v2
-      - name: Package
-        run: |
-          apt-get update
-          apt-get install -y git build-essential linux-libc-dev
-           apt-get install -y cmake cmake-gui 
-           apt-get install -y libusb-1.0-0-dev libusb-dev libudev-dev
-           apt-get install -y mpi-default-dev openmpi-bin openmpi-common  
-           apt-get install -y libflann1.8 libflann-dev
-           apt-get install -y libeigen3-dev
-           apt-get install -y libboost-all-dev
-           apt-get install -y libvtk5.10-qt4 libvtk5.10 libvtk5-dev
-           apt-get install -y libqhull* libgtest-dev
-           apt-get install -y freeglut3-dev pkg-config
-           apt-get install -y libxmu-dev libxi-dev 
-           apt-get install -y mono-complete
-           apt-get install -y qt-sdk openjdk-8-jdk openjdk-8-jre
-          mkdir release
-          cd release
-          cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr \
-                -DBUILD_GPU=OFF -DBUILD_apps=OFF -DBUILD_examples=OFF \
-                -DCMAKE_INSTALL_PREFIX=/usr ..
-          make
-          make install
+      - uses: ./github/actions/build@local
