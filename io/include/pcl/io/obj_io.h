@@ -36,13 +36,14 @@
 
 #pragma once
 
-#include <pcl/pcl_macros.h>
+#include <pcl/memory.h>
 #include <pcl/TextureMesh.h>
-#include <pcl/PolygonMesh.h>
 #include <pcl/io/file_io.h>
 
 namespace pcl
 {
+  struct PolygonMesh;
+
   class PCL_EXPORTS MTLReader
   {
     public:

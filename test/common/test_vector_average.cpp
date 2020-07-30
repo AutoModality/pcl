@@ -35,10 +35,8 @@
  */
 /** \author Bastian Steder */
 
-#include <pcl/pcl_macros.h>
 #include <iostream> 
-#include <sstream> 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 #include <pcl/common/vector_average.h>
 using namespace pcl;
 

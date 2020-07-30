@@ -38,9 +38,7 @@
 #include <pcl/octree/octree_pointcloud_adjacency.h>
 #include <pcl/octree/octree_base.h>
 #include <pcl/octree/octree_iterator.h>
-#include <pcl/common/projection_matrix.h>
 #include <pcl/point_types.h>
-#include <gtest/gtest.h>
 #include <pcl/test/gtest.h>
 
 using pcl::octree::OctreeBase;

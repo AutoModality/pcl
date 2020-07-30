@@ -43,9 +43,9 @@
 #endif
 
 // Include PCL macros such as PCL_ERROR, PCL_MAKE_ALIGNED_OPERATOR_NEW, etc
+#include <pcl/memory.h>
 #include <pcl/pcl_macros.h>
 
-#include <boost/shared_ptr.hpp>
 #include <Eigen/StdVector>
 #include <Eigen/Core>
 
@@ -53,13 +53,16 @@
 #include <pcl/point_cloud.h>
 #include <pcl/PointIndices.h>
 #include <pcl/PCLPointCloud2.h>
+#include <pcl/types.h>
 
 namespace pcl
 {
   // definitions used everywhere
-  using Indices = std::vector<int>;
   using IndicesPtr = shared_ptr<Indices>;
   using IndicesConstPtr = shared_ptr<const Indices>;
+
+  //Used to denote that a value has not been set for an index_t variable
+  static  constexpr index_t UNAVAILABLE = static_cast<index_t>(-1);
 
   /////////////////////////////////////////////////////////////////////////////////////////
   /** \brief PCL base class. Implements methods that are used by most PCL algorithms.
@@ -83,11 +86,7 @@ namespace pcl
       PCLBase (const PCLBase& base);
 
       /** \brief Destructor. */
-      virtual ~PCLBase ()
-      {
-        input_.reset ();
-        indices_.reset ();
-      }
+      virtual ~PCLBase () = default;
 
       /** \brief Provide a pointer to the input dataset
         * \param[in] cloud the const boost shared pointer to a PointCloud message
@@ -129,7 +128,7 @@ namespace pcl
       setIndices (std::size_t row_start, std::size_t col_start, std::size_t nb_rows, std::size_t nb_cols);
 
       /** \brief Get a pointer to the vector of indices used. */
-      inline IndicesPtr const
+      inline IndicesPtr
       getIndices () { return (indices_); }
 
       /** \brief Get a pointer to the vector of indices used. */
@@ -138,7 +137,7 @@ namespace pcl
 
       /** \brief Override PointCloud operator[] to shorten code
         * \note this method can be called instead of (*input_)[(*indices_)[pos]]
-        * or input_->points[(*indices_)[pos]]
+        * or (*input_)[(*indices_)[pos]]
         * \param[in] pos position in indices_ vector
         */
       inline const PointT& operator[] (std::size_t pos) const
@@ -196,11 +195,7 @@ namespace pcl
       PCLBase ();
 
       /** \brief destructor. */
-      virtual ~PCLBase()
-      {
-        input_.reset ();
-        indices_.reset ();
-      }
+      virtual ~PCLBase () = default;
 
       /** \brief Provide a pointer to the input dataset
         * \param cloud the const boost shared pointer to a PointCloud message
@@ -245,7 +240,7 @@ namespace pcl
       std::vector<int> field_sizes_;
 
       /** \brief The x-y-z fields indices. */
-      int x_idx_, y_idx_, z_idx_;
+      index_t x_idx_, y_idx_, z_idx_;
 
       /** \brief The desired x-y-z field names. */
       std::string x_field_name_, y_field_name_, z_field_name_;

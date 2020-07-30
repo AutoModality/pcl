@@ -290,7 +290,7 @@ pcl::EnsensoGrabber::configureCapture (const bool auto_exposure,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 bool
-pcl::EnsensoGrabber::grabSingleCloud (pcl::PointCloud<pcl::PointXYZ> &cloud)
+pcl::EnsensoGrabber::grabSingleCloud (pcl::PointCloud<pcl::PointXYZ> &cloud) const
 {
   if (!device_open_)
     return (false);
@@ -326,9 +326,9 @@ pcl::EnsensoGrabber::grabSingleCloud (pcl::PointCloud<pcl::PointXYZ> &cloud)
     // Copy data in point cloud (and convert millimeters in meters)
     for (std::size_t i = 0; i < pointMap.size (); i += 3)
     {
-      cloud.points[i / 3].x = pointMap[i] / 1000.0;
-      cloud.points[i / 3].y = pointMap[i + 1] / 1000.0;
-      cloud.points[i / 3].z = pointMap[i + 2] / 1000.0;
+      cloud[i / 3].x = pointMap[i] / 1000.0;
+      cloud[i / 3].y = pointMap[i + 1] / 1000.0;
+      cloud[i / 3].z = pointMap[i + 2] / 1000.0;
     }
 
     return (true);
@@ -575,7 +575,7 @@ bool
 pcl::EnsensoGrabber::setExtrinsicCalibration (const double euler_angle,
                                               Eigen::Vector3d &rotation_axis,
                                               const Eigen::Vector3d &translation,
-                                              const std::string target)
+                                              const std::string target) const
 {
   if (!device_open_)
     return (false);
@@ -1046,9 +1046,9 @@ pcl::EnsensoGrabber::processGrabbing ()
           // Copy data in point cloud (and convert millimeters in meters)
           for (std::size_t i = 0; i < pointMap.size (); i += 3)
           {
-            cloud->points[i / 3].x = pointMap[i] / 1000.0;
-            cloud->points[i / 3].y = pointMap[i + 1] / 1000.0;
-            cloud->points[i / 3].z = pointMap[i + 2] / 1000.0;
+            (*cloud)[i / 3].x = pointMap[i] / 1000.0;
+            (*cloud)[i / 3].y = pointMap[i + 1] / 1000.0;
+            (*cloud)[i / 3].z = pointMap[i + 2] / 1000.0;
           }
         }
 

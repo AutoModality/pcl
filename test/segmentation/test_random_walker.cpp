@@ -39,16 +39,14 @@
 #include <fstream>
 #include <sstream>
 
-#include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/info_parser.hpp>
 #include <boost/foreach.hpp>
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 
 #include <pcl/segmentation/random_walker.h>
-#include <pcl/test/gtest.h>
 
 std::string TEST_DATA_DIR;
 

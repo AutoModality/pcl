@@ -36,14 +36,17 @@
  *
  */
 
-#ifndef PCL_FEATURES_IMPL_3DSC_HPP_
-#define PCL_FEATURES_IMPL_3DSC_HPP_
+#pragma once
+
+#include <pcl/features/3dsc.h>
+
+#include <pcl/common/angles.h>
+#include <pcl/common/geometry.h>
+#include <pcl/common/point_tests.h> // for pcl::isFinite
+#include <pcl/common/utils.h>
 
 #include <cmath>
-#include <pcl/features/3dsc.h>
-#include <pcl/common/utils.h>
-#include <pcl/common/geometry.h>
-#include <pcl/common/angles.h>
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointInT, typename PointNT, typename PointOutT> bool
@@ -150,7 +153,7 @@ pcl::ShapeContext3DEstimation<PointInT, PointNT, PointOutT>::computePoint (
   const auto minIndex = nn_indices[std::distance (nn_dists.begin (), minDistanceIt)];
 
   // Get origin point
-  Vector3fMapConst origin = input_->points[(*indices_)[index]].getVector3fMap ();
+  Vector3fMapConst origin = (*input_)[(*indices_)[index]].getVector3fMap ();
   // Get origin normal
   // Use pre-computed normals
   normal = normals[minIndex].getNormalVector3fMap ();
@@ -180,7 +183,7 @@ pcl::ShapeContext3DEstimation<PointInT, PointNT, PointOutT>::computePoint (
     if (pcl::utils::equal (nn_dists[ne], 0.0f))
 		  continue;
     // Get neighbours coordinates
-    Eigen::Vector3f neighbour = surface_->points[nn_indices[ne]].getVector3fMap ();
+    Eigen::Vector3f neighbour = (*surface_)[nn_indices[ne]].getVector3fMap ();
 
     /// ----- Compute current neighbour polar coordinates -----
     /// Get distance between the neighbour and the origin
@@ -272,4 +275,3 @@ pcl::ShapeContext3DEstimation<PointInT, PointNT, PointOutT>::computeFeature (Poi
 
 #define PCL_INSTANTIATE_ShapeContext3DEstimation(T,NT,OutT) template class PCL_EXPORTS pcl::ShapeContext3DEstimation<T,NT,OutT>;
 
-#endif

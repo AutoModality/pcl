@@ -39,12 +39,10 @@
  */
 
 #include <vector>
-#include <typeinfo>
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 
 #include <pcl/geometry/triangle_mesh.h>
-#include <pcl/test/gtest.h>
 
 #include "test_mesh_common_functions.h"
 

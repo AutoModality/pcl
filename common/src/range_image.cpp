@@ -34,13 +34,11 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cstddef>
 #include <iostream>
 #include <cmath>
-#include <set>
+#include <pcl/common/time.h> // for MEASURE_FUNCTION_TIME
 #include <pcl/common/eigen.h>
 #include <pcl/range_image/range_image.h>
-#include <pcl/common/transformation_from_correspondences.h>
 
 namespace pcl 
 {
@@ -257,7 +255,7 @@ RangeImage::cropImage (int borderSize, int top, int right, int bottom, int left)
         currentPoint = unobserved_point;
         continue;
       }
-      currentPoint = oldRangeImage.points[oldY*oldRangeImage.width + oldX];
+      currentPoint = oldRangeImage[oldY*oldRangeImage.width + oldX];
     }
   }
 }
@@ -855,7 +853,7 @@ RangeImage::extractFarRanges (const pcl::PCLPointCloud2& point_cloud_data,
       far_ranges.points.push_back (point);
     }
   }
-  far_ranges.width= static_cast<std::uint32_t> (far_ranges.points.size ());  far_ranges.height = 1;
+  far_ranges.width= far_ranges.size ();  far_ranges.height = 1;
   far_ranges.is_dense = false;
 }
 
@@ -868,8 +866,13 @@ RangeImage::getOverlap (const RangeImage& other_range_image, const Eigen::Affine
   
   float max_distance_squared = max_distance*max_distance;
   
-  # pragma omp parallel for num_threads (max_no_of_threads) default (shared) schedule (dynamic, 1) \
-                        reduction (+ : valid_points_counter) reduction (+ : hits_counter)
+#pragma omp parallel for \
+  default(none) \
+  shared(max_distance_squared, other_range_image, pixel_step, relative_transformation, search_radius) \
+  schedule(dynamic, 1) \
+  reduction(+ : valid_points_counter) \
+  reduction(+ : hits_counter) \
+  num_threads(max_no_of_threads)
   for (int other_y=0; other_y<int (other_range_image.height); other_y+=pixel_step)
   {
     for (int other_x=0; other_x<int (other_range_image.width); other_x+=pixel_step)

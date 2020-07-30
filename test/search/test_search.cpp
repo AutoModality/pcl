@@ -35,7 +35,7 @@
  *
  */
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 
 #include <random>
 
@@ -44,10 +44,10 @@
 #include <pcl/search/organized.h>
 #include <pcl/search/octree.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/common/time.h>
+#include <pcl/common/point_tests.h> // for pcl::isFinite
+
 
 using namespace pcl;
-using namespace std;
 
 /** \brief if set to value other than 0 -> fine grained output */
 #define DEBUG_OUT 1
@@ -136,7 +136,7 @@ std::vector<int> organized_sparse_query_indices;
   * @param name name of the search method that returned these distances
   * @return true if indices are unique, false otherwise
   */
-bool testUniqueness (const std::vector<int>& indices, const string& name)
+bool testUniqueness (const std::vector<int>& indices, const std::string& name)
 {
   bool uniqueness = true;
   for (unsigned idx1 = 1; idx1 < indices.size () && uniqueness; ++idx1)
@@ -164,7 +164,7 @@ bool testUniqueness (const std::vector<int>& indices, const string& name)
   * \param name name of the search method that returned these distances
   * \return true if distances in weak ascending order, false otherwise
   */
-bool testOrder (const std::vector<float>& distances, const string& name)
+bool testOrder (const std::vector<float>& distances, const std::string& name)
 {
   bool ordered = true;
   for (std::size_t idx1 = 1; idx1 < distances.size (); ++idx1)
@@ -191,7 +191,7 @@ bool testOrder (const std::vector<float>& distances, const string& name)
  * @return true if result is valid, false otherwise
  */
 template<typename PointT> bool
-testResultValidity (const typename PointCloud<PointT>::ConstPtr point_cloud, const std::vector<bool>& indices_mask, const std::vector<bool>& nan_mask, const std::vector<int>& indices, const std::vector<int>& /*input_indices*/, const string& name)
+testResultValidity (const typename PointCloud<PointT>::ConstPtr point_cloud, const std::vector<bool>& indices_mask, const std::vector<bool>& nan_mask, const std::vector<int>& indices, const std::vector<int>& /*input_indices*/, const std::string& name)
 {
   bool validness = true;
   for (const int &index : indices)
@@ -233,8 +233,8 @@ testResultValidity (const typename PointCloud<PointT>::ConstPtr point_cloud, con
   * \param eps threshold for comparing the distances
   * \return true if both sets are the same, false otherwise
   */
-bool compareResults (const std::vector<int>& indices1, const::vector<float>& distances1, const std::string& name1,
-                     const std::vector<int>& indices2, const::vector<float>& distances2, const std::string& name2, float eps)
+bool compareResults (const std::vector<int>& indices1, const std::vector<float>& distances1, const std::string& name1,
+                     const std::vector<int>& indices2, const std::vector<float>& distances2, const std::string& name2, float eps)
 {
   bool equal = true;
   if (indices1.size () != indices2.size ())
@@ -299,7 +299,9 @@ testKNNSearch (typename PointCloud<PointT>::ConstPtr point_cloud, std::vector<se
   }
   
   // remove also Nans
-  #pragma omp parallel for
+  #pragma omp parallel for \
+    shared(nan_mask, point_cloud) \
+    default(none)
   for (int pIdx = 0; pIdx < int (point_cloud->size ()); ++pIdx)
   {
     if (!isFinite (point_cloud->points [pIdx]))
@@ -310,7 +312,9 @@ testKNNSearch (typename PointCloud<PointT>::ConstPtr point_cloud, std::vector<se
   if (!input_indices.empty ())
     input_indices_.reset (new pcl::Indices (input_indices));
   
-  #pragma omp parallel for
+  #pragma omp parallel for \
+    shared(input_indices, input_indices_, point_cloud, search_methods) \
+    default(none)
   for (int sIdx = 0; sIdx < int (search_methods.size ()); ++sIdx)
     search_methods [sIdx]->setInputCloud (point_cloud, input_indices_);
 
@@ -320,17 +324,21 @@ testKNNSearch (typename PointCloud<PointT>::ConstPtr point_cloud, std::vector<se
     // find nn for each point in the cloud
     for (const int &query_index : query_indices)
     {
-      #pragma omp parallel for
+      #pragma omp parallel for \
+        shared(indices, input_indices, indices_mask, distances, knn, nan_mask, passed, point_cloud, query_index, search_methods) \
+        default(none)
       for (int sIdx = 0; sIdx < int (search_methods.size ()); ++sIdx)
       {
-        search_methods [sIdx]->nearestKSearch (point_cloud->points[query_index], knn, indices [sIdx], distances [sIdx]);
+        search_methods [sIdx]->nearestKSearch ((*point_cloud)[query_index], knn, indices [sIdx], distances [sIdx]);
         passed [sIdx] = passed [sIdx] && testUniqueness (indices [sIdx], search_methods [sIdx]->getName ());
         passed [sIdx] = passed [sIdx] && testOrder (distances [sIdx], search_methods [sIdx]->getName ());
         passed [sIdx] = passed [sIdx] && testResultValidity<PointT>(point_cloud, indices_mask, nan_mask, indices [sIdx], input_indices, search_methods [sIdx]->getName ());
       }
       
       // compare results to each other
-      #pragma omp parallel for
+      #pragma omp parallel for \
+        shared(distances, indices, passed, search_methods) \
+        default(none)
       for (int sIdx = 1; sIdx < int (search_methods.size ()); ++sIdx)
       {
         passed [sIdx] = passed [sIdx] && compareResults (indices [0],    distances [0],    search_methods [0]->getName (),
@@ -369,7 +377,9 @@ testRadiusSearch (typename PointCloud<PointT>::ConstPtr point_cloud, std::vector
   }
   
   // remove also Nans
-  #pragma omp parallel for
+  #pragma omp parallel for \
+    default(none) \
+    shared(nan_mask, point_cloud)
   for (int pIdx = 0; pIdx < int (point_cloud->size ()); ++pIdx)
   {
     if (!isFinite (point_cloud->points [pIdx]))
@@ -380,7 +390,9 @@ testRadiusSearch (typename PointCloud<PointT>::ConstPtr point_cloud, std::vector
   if (!input_indices.empty ())
     input_indices_.reset (new pcl::Indices (input_indices));
   
-  #pragma omp parallel for
+  #pragma omp parallel for \
+    default(none) \
+    shared(input_indices_, point_cloud, search_methods)
   for (int sIdx = 0; sIdx < int (search_methods.size ()); ++sIdx)
     search_methods [sIdx]->setInputCloud (point_cloud, input_indices_);
 
@@ -391,17 +403,21 @@ testRadiusSearch (typename PointCloud<PointT>::ConstPtr point_cloud, std::vector
     // find nn for each point in the cloud
     for (const int &query_index : query_indices)
     {
-      #pragma omp parallel for
+      #pragma omp parallel for \
+        default(none) \
+        shared(distances, indices, indices_mask, input_indices, nan_mask, passed, point_cloud, radius, query_index, search_methods)
       for (int sIdx = 0; sIdx < static_cast<int> (search_methods.size ()); ++sIdx)
       {
-        search_methods [sIdx]->radiusSearch (point_cloud->points[query_index], radius, indices [sIdx], distances [sIdx], 0);
+        search_methods [sIdx]->radiusSearch ((*point_cloud)[query_index], radius, indices [sIdx], distances [sIdx], 0);
         passed [sIdx] = passed [sIdx] && testUniqueness (indices [sIdx], search_methods [sIdx]->getName ());
         passed [sIdx] = passed [sIdx] && testOrder (distances [sIdx], search_methods [sIdx]->getName ());
         passed [sIdx] = passed [sIdx] && testResultValidity<PointT>(point_cloud, indices_mask, nan_mask, indices [sIdx], input_indices, search_methods [sIdx]->getName ());
       }
       
       // compare results to each other
-      #pragma omp parallel for
+      #pragma omp parallel for \
+        default(none) \
+        shared(distances, indices, passed, search_methods)
       for (int sIdx = 1; sIdx < static_cast<int> (search_methods.size ()); ++sIdx)
       {
         passed [sIdx] = passed [sIdx] && compareResults (indices [0],    distances [0],    search_methods [0]->getName (),

@@ -51,7 +51,7 @@ namespace pcl
   /** \brief Removes points with x, y, or z equal to NaN
     * \param[in] cloud_in the input point cloud
     * \param[out] cloud_out the output point cloud
-    * \param[out] index the mapping (ordered): cloud_out.points[i] = cloud_in.points[index[i]]
+    * \param[out] index the mapping (ordered): cloud_out[i] = cloud_in[index[i]]
     * \note The density of the point cloud is lost.
     * \note Can be called with cloud_in == cloud_out
     * \ingroup filters
@@ -64,7 +64,7 @@ namespace pcl
   /** \brief Removes points that have their normals invalid (i.e., equal to NaN)
     * \param[in] cloud_in the input point cloud
     * \param[out] cloud_out the output point cloud
-    * \param[out] index the mapping (ordered): cloud_out.points[i] = cloud_in.points[index[i]]
+    * \param[out] index the mapping (ordered): cloud_out[i] = cloud_in[index[i]]
     * \note The density of the point cloud is lost.
     * \note Can be called with cloud_in == cloud_out
     * \ingroup filters
@@ -83,9 +83,6 @@ namespace pcl
   class Filter : public PCLBase<PointT>
   {
     public:
-      using PCLBase<PointT>::indices_;
-      using PCLBase<PointT>::input_;
-
       using Ptr = shared_ptr<Filter<PointT> >;
       using ConstPtr = shared_ptr<const Filter<PointT> >;
 
@@ -103,9 +100,6 @@ namespace pcl
         extract_removed_indices_ (extract_removed_indices)
       {
       }
-
-      /** \brief Empty destructor */
-      ~Filter () {}
 
       /** \brief Get the point indices being removed */
       inline IndicesConstPtr const
@@ -153,6 +147,9 @@ namespace pcl
       }
 
     protected:
+
+      using PCLBase<PointT>::indices_;
+      using PCLBase<PointT>::input_;
 
       using PCLBase<PointT>::initCompute;
       using PCLBase<PointT>::deinitCompute;
@@ -208,9 +205,6 @@ namespace pcl
         extract_removed_indices_ (extract_removed_indices)
       {
       }
-
-      /** \brief Empty destructor */
-      ~Filter () {}
 
       /** \brief Get the point indices being removed */
       inline IndicesConstPtr const

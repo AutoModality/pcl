@@ -79,24 +79,24 @@ pcl::AgastKeypoint2D<pcl::PointXYZ, pcl::PointUV>::detectKeypoints (pcl::PointCl
 void
 pcl::keypoints::agast::AbstractAgastDetector::detectKeypoints (
     const std::vector<unsigned char> & intensity_data,
-    pcl::PointCloud<pcl::PointUV> &output)
+    pcl::PointCloud<pcl::PointUV> &output) const
 {
   detect (&(intensity_data[0]), output.points);
 
   output.height = 1;
-  output.width = static_cast<std::uint32_t> (output.points.size ());
+  output.width = output.size ();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
 void
 pcl::keypoints::agast::AbstractAgastDetector::detectKeypoints (
     const std::vector<float> & intensity_data,
-    pcl::PointCloud<pcl::PointUV> &output)
+    pcl::PointCloud<pcl::PointUV> &output) const
 {
   detect (&(intensity_data[0]), output.points);
 
   output.height = 1;
-  output.width = static_cast<std::uint32_t> (output.points.size ());
+  output.width = output.size ();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +232,7 @@ pcl::keypoints::agast::AbstractAgastDetector::applyNonMaxSuppression (
   }
 
   output.height = 1;
-  output.width = static_cast<std::uint32_t> (output.points.size ());
+  output.width = output.size ();
   output.is_dense = input.is_dense;
 }
 
@@ -297,7 +297,7 @@ void
 pcl::keypoints::agast::AbstractAgastDetector::computeCornerScores (
   const unsigned char* im,
   const std::vector<pcl::PointUV, Eigen::aligned_allocator<pcl::PointUV> > &corners_all,
-  std::vector<ScoreIndex> &scores)
+  std::vector<ScoreIndex> &scores) const
 {
   unsigned int num_corners = static_cast<unsigned int> (corners_all.size ());
 
@@ -327,7 +327,7 @@ void
 pcl::keypoints::agast::AbstractAgastDetector::computeCornerScores (
   const float* im,
   const std::vector<pcl::PointUV, Eigen::aligned_allocator<pcl::PointUV> > &corners_all,
-  std::vector<ScoreIndex> &scores)
+  std::vector<ScoreIndex> &scores) const
 {
   unsigned int num_corners = static_cast<unsigned int> (corners_all.size ());
 

@@ -36,11 +36,14 @@
  *
  */
 
-#ifndef PCL_RANGE_IMAGE_IMPL_HPP_
-#define PCL_RANGE_IMAGE_IMPL_HPP_
+#pragma once
+
+#include <pcl/range_image/range_image.h>
 
 #include <pcl/pcl_macros.h>
 #include <pcl/common/distances.h>
+#include <pcl/common/point_tests.h> // for pcl::isFinite
+
 
 namespace pcl
 {
@@ -158,7 +161,7 @@ RangeImage::createFromPointCloudWithKnownSize (const PointCloudType& point_cloud
 {
   //MEASURE_FUNCTION_TIME;
   
-  //std::cout << "Starting to create range image from "<<point_cloud.points.size ()<<" points.\n";
+  //std::cout << "Starting to create range image from "<<point_cloud.size ()<<" points.\n";
   
   // If the sensor pose is inside of the sphere we have to calculate the image the normal way
   if ((point_cloud_center-sensor_pose.translation()).norm() <= point_cloud_radius) {
@@ -1250,6 +1253,4 @@ RangeImage::integrateFarRanges (const PointCloudType& far_ranges)
   }
 }
 
-}  // namespace end
-#endif
-
+}  // namespace pcl

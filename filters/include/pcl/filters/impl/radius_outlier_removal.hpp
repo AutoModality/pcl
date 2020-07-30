@@ -41,32 +41,6 @@
 #define PCL_FILTERS_IMPL_RADIUS_OUTLIER_REMOVAL_H_
 
 #include <pcl/filters/radius_outlier_removal.h>
-#include <pcl/common/io.h>
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename PointT> void
-pcl::RadiusOutlierRemoval<PointT>::applyFilter (PointCloud &output)
-{
-  std::vector<int> indices;
-  if (keep_organized_)
-  {
-    bool temp = extract_removed_indices_;
-    extract_removed_indices_ = true;
-    applyFilterIndices (indices);
-    extract_removed_indices_ = temp;
-
-    output = *input_;
-    for (const auto ri : *removed_indices_)  // ri = removed index
-      output.points[ri].x = output.points[ri].y = output.points[ri].z = user_filter_value_;
-    if (!std::isfinite (user_filter_value_))
-      output.is_dense = false;
-  }
-  else
-  {
-    applyFilterIndices (indices);
-    copyPointCloud (*input_, indices, output);
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT> void

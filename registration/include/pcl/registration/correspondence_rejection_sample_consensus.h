@@ -41,11 +41,9 @@
 #pragma once
 
 
-#include <pcl/pcl_macros.h>
+#include <pcl/memory.h>
 #include <pcl/registration/correspondence_rejection.h>
 
-#include <pcl/sample_consensus/ransac.h>
-#include <pcl/sample_consensus/sac_model_registration.h>
 #include <pcl/common/transforms.h>
 
 namespace pcl

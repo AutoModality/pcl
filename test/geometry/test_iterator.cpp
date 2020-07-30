@@ -33,8 +33,7 @@
  *
  */
 
-#include <gtest/gtest.h>
-#include <pcl/common/common.h>
+#include <pcl/test/gtest.h>
 #include <pcl/geometry/line_iterator.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>

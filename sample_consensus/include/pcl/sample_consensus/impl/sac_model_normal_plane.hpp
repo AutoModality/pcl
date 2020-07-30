@@ -42,11 +42,12 @@
 #define PCL_SAMPLE_CONSENSUS_IMPL_SAC_MODEL_NORMAL_PLANE_H_
 
 #include <pcl/sample_consensus/sac_model_normal_plane.h>
+#include <pcl/common/common.h> // for getAngle3D
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename PointNT> void
 pcl::SampleConsensusModelNormalPlane<PointT, PointNT>::selectWithinDistance (
-      const Eigen::VectorXf &model_coefficients, const double threshold, std::vector<int> &inliers)
+      const Eigen::VectorXf &model_coefficients, const double threshold, Indices &inliers)
 {
   if (!normals_)
   {
@@ -64,21 +65,22 @@ pcl::SampleConsensusModelNormalPlane<PointT, PointNT>::selectWithinDistance (
 
   // Obtain the plane normal
   Eigen::Vector4f coeff = model_coefficients;
-  coeff[3] = 0;
+  coeff[3] = 0.0f;
 
-  int nr_p = 0;
-  inliers.resize (indices_->size ());
-  error_sqr_dists_.resize (indices_->size ());
+  inliers.clear ();
+  error_sqr_dists_.clear ();
+  inliers.reserve (indices_->size ());
+  error_sqr_dists_.reserve (indices_->size ());
 
   // Iterate through the 3d points and calculate the distances from them to the plane
   for (std::size_t i = 0; i < indices_->size (); ++i)
   {
-    const PointT  &pt = input_->points[(*indices_)[i]];
-    const PointNT &nt = normals_->points[(*indices_)[i]];
+    const PointT  &pt = (*input_)[(*indices_)[i]];
+    const PointNT &nt = (*normals_)[(*indices_)[i]];
     // Calculate the distance from the point to the plane normal as the dot product
     // D = (P-A).N/|N|
-    Eigen::Vector4f p (pt.x, pt.y, pt.z, 0);
-    Eigen::Vector4f n (nt.normal_x, nt.normal_y, nt.normal_z, 0);
+    Eigen::Vector4f p (pt.x, pt.y, pt.z, 0.0f);
+    Eigen::Vector4f n (nt.normal_x, nt.normal_y, nt.normal_z, 0.0f);
     double d_euclid = std::abs (coeff.dot (p) + model_coefficients[3]);
 
     // Calculate the angular distance between the point normal and the plane normal
@@ -92,13 +94,10 @@ pcl::SampleConsensusModelNormalPlane<PointT, PointNT>::selectWithinDistance (
     if (distance < threshold)
     {
       // Returns the indices of the points whose distances are smaller than the threshold
-      inliers[nr_p] = (*indices_)[i];
-      error_sqr_dists_[nr_p] = distance;
-      ++nr_p;
+      inliers.push_back ((*indices_)[i]);
+      error_sqr_dists_.push_back (distance);
     }
   }
-  inliers.resize (nr_p);
-  error_sqr_dists_.resize (nr_p);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -118,19 +117,19 @@ pcl::SampleConsensusModelNormalPlane<PointT, PointNT>::countWithinDistance (
 
   // Obtain the plane normal
   Eigen::Vector4f coeff = model_coefficients;
-  coeff[3] = 0;
+  coeff[3] = 0.0f;
 
   std::size_t nr_p = 0;
 
   // Iterate through the 3d points and calculate the distances from them to the plane
   for (std::size_t i = 0; i < indices_->size (); ++i)
   {
-    const PointT  &pt = input_->points[(*indices_)[i]];
-    const PointNT &nt = normals_->points[(*indices_)[i]];
+    const PointT  &pt = (*input_)[(*indices_)[i]];
+    const PointNT &nt = (*normals_)[(*indices_)[i]];
     // Calculate the distance from the point to the plane normal as the dot product
     // D = (P-A).N/|N|
-    Eigen::Vector4f p (pt.x, pt.y, pt.z, 0);
-    Eigen::Vector4f n (nt.normal_x, nt.normal_y, nt.normal_z, 0);
+    Eigen::Vector4f p (pt.x, pt.y, pt.z, 0.0f);
+    Eigen::Vector4f n (nt.normal_x, nt.normal_y, nt.normal_z, 0.0f);
     double d_euclid = std::abs (coeff.dot (p) + model_coefficients[3]);
 
     // Calculate the angular distance between the point normal and the plane normal
@@ -166,19 +165,19 @@ pcl::SampleConsensusModelNormalPlane<PointT, PointNT>::getDistancesToModel (
 
   // Obtain the plane normal
   Eigen::Vector4f coeff = model_coefficients;
-  coeff[3] = 0;
+  coeff[3] = 0.0f;
 
   distances.resize (indices_->size ());
 
   // Iterate through the 3d points and calculate the distances from them to the plane
   for (std::size_t i = 0; i < indices_->size (); ++i)
   {
-    const PointT  &pt = input_->points[(*indices_)[i]];
-    const PointNT &nt = normals_->points[(*indices_)[i]];
+    const PointT  &pt = (*input_)[(*indices_)[i]];
+    const PointNT &nt = (*normals_)[(*indices_)[i]];
     // Calculate the distance from the point to the plane normal as the dot product
     // D = (P-A).N/|N|
-    Eigen::Vector4f p (pt.x, pt.y, pt.z, 0);
-    Eigen::Vector4f n (nt.normal_x, nt.normal_y, nt.normal_z, 0);
+    Eigen::Vector4f p (pt.x, pt.y, pt.z, 0.0f);
+    Eigen::Vector4f n (nt.normal_x, nt.normal_y, nt.normal_z, 0.0f);
     double d_euclid = std::abs (coeff.dot (p) + model_coefficients[3]);
 
     // Calculate the angular distance between the point normal and the plane normal

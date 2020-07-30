@@ -5,24 +5,24 @@
  *      Author: hordurj
  */
 
+#include <pcl/simulation/glsl_shader.h>
+
 #include <fstream>
 #include <iostream>
-#include <pcl/simulation/glsl_shader.h>
 
 using namespace pcl::simulation::gllib;
 
 char*
 readTextFile(const char* filename)
 {
-  using namespace std;
   char* buf = nullptr;
-  ifstream file;
-  file.open(filename, ios::in | ios::binary | ios::ate);
+  std::ifstream file;
+  file.open(filename, std::ios::in | std::ios::binary | std::ios::ate);
   if (file.is_open()) {
-    ifstream::pos_type size;
+    std::ifstream::pos_type size;
     size = file.tellg();
-    buf = new char[size + static_cast<ifstream::pos_type>(1)];
-    file.seekg(0, ios::beg);
+    buf = new char[size + static_cast<std::ifstream::pos_type>(1)];
+    file.seekg(0, std::ios::beg);
     file.read(buf, size);
     file.close();
     buf[size] = 0;
@@ -35,7 +35,7 @@ pcl::simulation::gllib::Program::Program() { program_id_ = glCreateProgram(); }
 pcl::simulation::gllib::Program::~Program() {}
 
 int
-pcl::simulation::gllib::Program::getUniformLocation(const std::string& name)
+pcl::simulation::gllib::Program::getUniformLocation(const std::string& name) const
 {
   return glGetUniformLocation(program_id_, name.c_str());
 }
@@ -103,7 +103,7 @@ pcl::simulation::gllib::Program::setUniform(const std::string& name, bool v)
 
 bool
 pcl::simulation::gllib::Program::addShaderText(const std::string& text,
-                                               ShaderType shader_type)
+                                               ShaderType shader_type) const
 {
   GLuint id;
   GLint compile_status;
@@ -139,7 +139,7 @@ pcl::simulation::gllib::Program::addShaderFile(const std::string& filename,
 }
 
 bool
-pcl::simulation::gllib::Program::link()
+pcl::simulation::gllib::Program::link() const
 {
   glLinkProgram(program_id_);
   printProgramInfoLog(program_id_);
@@ -148,7 +148,7 @@ pcl::simulation::gllib::Program::link()
 }
 
 void
-pcl::simulation::gllib::Program::use()
+pcl::simulation::gllib::Program::use() const
 {
   glUseProgram(program_id_);
 }

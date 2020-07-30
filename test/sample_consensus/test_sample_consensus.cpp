@@ -36,7 +36,7 @@
  *
  */
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 
 #include <pcl/sample_consensus/msac.h>
 #include <pcl/sample_consensus/lmeds.h>
@@ -45,11 +45,9 @@
 #include <pcl/sample_consensus/ransac.h>
 #include <pcl/sample_consensus/rransac.h>
 #include <pcl/sample_consensus/sac_model_sphere.h>
-#include <pcl/test/gtest.h>
 
 #include <chrono>
 #include <condition_variable>
-#include <memory>
 #include <mutex>
 #include <thread>
 
@@ -104,9 +102,9 @@ TYPED_TEST(SacTest, InfiniteLoop)
   cloud.points.resize (point_count);
   for (unsigned idx = 0; idx < point_count; ++idx)
   {
-    cloud.points[idx].x = static_cast<float> (idx);
-    cloud.points[idx].y = 0.0;
-    cloud.points[idx].z = 0.0;
+    cloud[idx].x = static_cast<float> (idx);
+    cloud[idx].y = 0.0;
+    cloud[idx].z = 0.0;
   }
 
   SampleConsensusModelSpherePtr model (new SampleConsensusModelSphere<PointXYZ> (cloud.makeShared ()));
@@ -132,8 +130,10 @@ TYPED_TEST(SacTest, InfiniteLoop)
   #if defined(DEBUG) || defined(_DEBUG)
     EXPECT_EQ (std::cv_status::no_timeout, cv.wait_for (lock, 15s));
   #else
-    EXPECT_EQ (std::cv_status::no_timeout, cv.wait_for (lock, 1s));
+    EXPECT_EQ (std::cv_status::no_timeout, cv.wait_for (lock, 2s));
   #endif
+  // release lock to avoid deadlock
+  lock.unlock();
   thread.join ();
 }
 

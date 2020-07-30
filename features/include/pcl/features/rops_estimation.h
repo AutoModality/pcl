@@ -39,8 +39,8 @@
 
 #pragma once
 
+#include <pcl/memory.h>
 #include <pcl/pcl_macros.h>
-#include <pcl/PolygonMesh.h>
 #include <pcl/features/feature.h>
 #include <set>
 

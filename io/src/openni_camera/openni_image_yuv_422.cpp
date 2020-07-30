@@ -35,7 +35,7 @@
  *
  */
 #include <pcl/pcl_config.h>
-#include <pcl/make_shared.h>
+#include <pcl/memory.h>
 #ifdef HAVE_OPENNI
 
 #include <pcl/io/openni_camera/openni_image_yuv_422.h>
@@ -44,7 +44,6 @@
 
 #define CLIP_CHAR(c) static_cast<unsigned char> ((c)>255?255:(c)<0?0:(c))
 
-using namespace std;
 namespace openni_wrapper
 {
 

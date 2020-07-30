@@ -37,7 +37,6 @@
  */
 #include <pcl/io/obj_io.h>
 #include <fstream>
-#include <iostream>
 #include <pcl/common/io.h>
 #include <pcl/io/boost.h>
 #include <pcl/console/time.h>
@@ -573,7 +572,7 @@ pcl::OBJReader::read (const std::string &file_name, pcl::PCLPointCloud2 &cloud,
           }
           ++point_idx;
         }
-        catch (const boost::bad_lexical_cast &e)
+        catch (const boost::bad_lexical_cast&)
         {
           PCL_ERROR ("Unable to convert %s to vertex coordinates!", line.c_str ());
           return (-1);
@@ -602,7 +601,7 @@ pcl::OBJReader::read (const std::string &file_name, pcl::PCLPointCloud2 &cloud,
           }
           ++normal_idx;
         }
-        catch (const boost::bad_lexical_cast &e)
+        catch (const boost::bad_lexical_cast&)
         {
           PCL_ERROR ("Unable to convert line %s to vertex normal!", line.c_str ());
           return (-1);
@@ -715,7 +714,7 @@ pcl::OBJReader::read (const std::string &file_name, pcl::TextureMesh &mesh,
           }
           ++v_idx;
         }
-        catch (const boost::bad_lexical_cast &e)
+        catch (const boost::bad_lexical_cast&)
         {
           PCL_ERROR ("Unable to convert %s to vertex coordinates!", line.c_str ());
           return (-1);
@@ -736,7 +735,7 @@ pcl::OBJReader::read (const std::string &file_name, pcl::TextureMesh &mesh,
           }
           ++vn_idx;
         }
-        catch (const boost::bad_lexical_cast &e)
+        catch (const boost::bad_lexical_cast&)
         {
           PCL_ERROR ("Unable to convert line %s to vertex normal!", line.c_str ());
           return (-1);
@@ -757,7 +756,7 @@ pcl::OBJReader::read (const std::string &file_name, pcl::TextureMesh &mesh,
             coordinates.emplace_back(c[0]/c[2], c[1]/c[2]);
           ++vt_idx;
         }
-        catch (const boost::bad_lexical_cast &e)
+        catch (const boost::bad_lexical_cast&)
         {
           PCL_ERROR ("Unable to convert line %s to texture coordinates!", line.c_str ());
           return (-1);
@@ -905,7 +904,7 @@ pcl::OBJReader::read (const std::string &file_name, pcl::PolygonMesh &mesh,
           }
           ++v_idx;
         }
-        catch (const boost::bad_lexical_cast &e)
+        catch (const boost::bad_lexical_cast&)
         {
           PCL_ERROR ("Unable to convert %s to vertex coordinates!", line.c_str ());
           return (-1);
@@ -927,7 +926,7 @@ pcl::OBJReader::read (const std::string &file_name, pcl::PolygonMesh &mesh,
           }
           ++vn_idx;
         }
-        catch (const boost::bad_lexical_cast &e)
+        catch (const boost::bad_lexical_cast&)
         {
           PCL_ERROR ("Unable to convert line %s to vertex normal!", line.c_str ());
           return (-1);

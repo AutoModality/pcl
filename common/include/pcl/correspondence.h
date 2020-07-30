@@ -39,10 +39,12 @@
 #pragma once
 
 #ifdef __GNUC__
-#pragma GCC system_header 
+#pragma GCC system_header
 #endif
 
-#include <pcl/make_shared.h>
+#include <pcl/pcl_base.h>
+#include <pcl/memory.h>
+#include <pcl/types.h>
 #include <Eigen/StdVector>
 #include <Eigen/Geometry>
 #include <pcl/pcl_exports.h>
@@ -50,7 +52,7 @@
 
 namespace pcl
 {
-  /** \brief Correspondence represents a match between two entities (e.g., points, descriptors, etc). This is 
+  /** \brief Correspondence represents a match between two entities (e.g., points, descriptors, etc). This is
     * represented via the indices of a \a source point and a \a target point, and the distance between them.
     *
     * \author Dirk Holz, Radu B. Rusu, Bastian Steder
@@ -59,23 +61,23 @@ namespace pcl
   struct Correspondence
   {
     /** \brief Index of the query (source) point. */
-    int index_query = 0;
+    index_t index_query = 0;
     /** \brief Index of the matching (target) point. Set to -1 if no correspondence found. */
-    int index_match = -1;
+    index_t index_match = UNAVAILABLE;
     /** \brief Distance between the corresponding points, or the weight denoting the confidence in correspondence estimation */
     union
     {
       float distance = std::numeric_limits<float>::max();
       float weight;
     };
-    
-    /** \brief Standard constructor. 
+
+    /** \brief Standard constructor.
       * Sets \ref index_query to 0, \ref index_match to -1, and \ref distance to FLT_MAX.
       */
     inline Correspondence () = default;
 
     /** \brief Constructor. */
-    inline Correspondence (int _index_query, int _index_match, float _distance) : 
+    inline Correspondence (index_t _index_query, index_t _index_match, float _distance) :
       index_query (_index_query), index_match (_index_match), distance (_distance)
     {}
 
@@ -105,7 +107,7 @@ namespace pcl
   void
   getRejectedQueryIndices (const pcl::Correspondences &correspondences_before,
                            const pcl::Correspondences &correspondences_after,
-                           std::vector<int>& indices,
+                           Indices& indices,
                            bool presorting_required = true);
 
   /**

@@ -39,37 +39,7 @@
 #define PCL_FILTERS_IMPL_FRUSTUM_CULLING_HPP_
 
 #include <pcl/filters/frustum_culling.h>
-#include <pcl/common/io.h>
 #include <vector>
-
-///////////////////////////////////////////////////////////////////////////////
-template <typename PointT> void
-pcl::FrustumCulling<PointT>::applyFilter (PointCloud& output)
-{
-  std::vector<int> indices;
-  if (keep_organized_)
-  {
-    bool temp = extract_removed_indices_;
-    extract_removed_indices_ = true;
-    applyFilter (indices);
-    extract_removed_indices_ = temp;
-    copyPointCloud (*input_, output);
-
-    for (std::size_t rii = 0; rii < removed_indices_->size (); ++rii)
-    {
-      PointT &pt_to_remove = output.at ((*removed_indices_)[rii]);
-      pt_to_remove.x = pt_to_remove.y = pt_to_remove.z = user_filter_value_;
-      if (!std::isfinite (user_filter_value_))
-        output.is_dense = false;
-    }
-  }
-  else
-  {
-    output.is_dense = true;
-    applyFilter (indices);
-    copyPointCloud (*input_, indices, output);
-  }
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 template <typename PointT> void
@@ -153,9 +123,9 @@ pcl::FrustumCulling<PointT>::applyFilter (std::vector<int> &indices)
   for (std::size_t i = 0; i < indices_->size (); i++) 
   {
     int idx = indices_->at (i);
-    Eigen::Vector4f pt (input_->points[idx].x,
-                        input_->points[idx].y,
-                        input_->points[idx].z,
+    Eigen::Vector4f pt ((*input_)[idx].x,
+                        (*input_)[idx].y,
+                        (*input_)[idx].z,
                         1.0f);
     bool is_in_fov = (pt.dot (pl_l) <= 0) && 
                      (pt.dot (pl_r) <= 0) &&

@@ -40,7 +40,7 @@
 
 #pragma once
 
-#include <pcl/pcl_macros.h>
+#include <pcl/memory.h>
 #include <pcl/registration/registration.h>
 #include <pcl/registration/transformation_estimation_svd.h>
 

@@ -36,7 +36,7 @@
  *
  */
 #include <pcl/pcl_config.h>
-#include <pcl/make_shared.h>
+#include <pcl/memory.h>
 #ifdef HAVE_OPENNI
 
 #ifdef __GNUC__
@@ -48,9 +48,6 @@
 #include <pcl/io/openni_camera/openni_depth_image.h>
 #include <pcl/io/openni_camera/openni_ir_image.h>
 #include <pcl/io/openni_camera/openni_image.h>
-#include <iostream>
-#include <limits>
-#include <sstream>
 #include <map>
 #include <vector>
 #include "XnVersion.h"

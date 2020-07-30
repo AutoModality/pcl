@@ -37,14 +37,13 @@
 #ifndef PCL_DISPARITY_MAP_CONVERTER_IMPL_H_
 #define PCL_DISPARITY_MAP_CONVERTER_IMPL_H_
 
+#include <pcl/common/intensity.h>
+#include <pcl/console/print.h>
 #include <pcl/stereo/disparity_map_converter.h>
+#include <pcl/point_types.h>
 
 #include <fstream>
 #include <limits>
-
-#include <pcl/common/intensity.h>
-#include <pcl/console/print.h>
-#include <pcl/point_types.h>
 
 template <typename PointT>
 pcl::DisparityMapConverter<PointT>::DisparityMapConverter()
@@ -274,9 +273,9 @@ pcl::DisparityMapConverter<PointT>::compute(PointCloud& out_cloud)
       if (is_color_) {
         pcl::common::IntensityFieldAccessor<PointT> intensity_accessor;
         intensity_accessor.set(new_point,
-                               static_cast<float>(image_->points[disparity_point].r +
-                                                  image_->points[disparity_point].g +
-                                                  image_->points[disparity_point].b) /
+                               static_cast<float>((*image_)[disparity_point].r +
+                                                  (*image_)[disparity_point].g +
+                                                  (*image_)[disparity_point].b) /
                                    3.0f);
       }
 

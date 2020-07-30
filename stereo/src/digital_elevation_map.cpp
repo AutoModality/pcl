@@ -34,10 +34,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <pcl/stereo/digital_elevation_map.h>
-
 #include <pcl/common/feature_histogram.h>
 #include <pcl/console/print.h>
+#include <pcl/stereo/digital_elevation_map.h>
 
 pcl::DigitalElevationMapBuilder::DigitalElevationMapBuilder()
 : resolution_column_(64), resolution_disparity_(32), min_points_in_cell_(1)
@@ -132,7 +131,7 @@ pcl::DigitalElevationMapBuilder::compute(pcl::PointCloud<PointDEM>& out_cloud)
         PointXYZ point_3D = translateCoordinates(row, column, disparity);
         float height = point_3D.y;
 
-        RGB point_RGB = image_->points[column + row * disparity_map_width_];
+        RGB point_RGB = (*image_)[column + row * disparity_map_width_];
         float intensity =
             static_cast<float>((point_RGB.r + point_RGB.g + point_RGB.b) / 3);
 

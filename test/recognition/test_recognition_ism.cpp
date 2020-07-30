@@ -37,11 +37,10 @@
  *
  */
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/io/pcd_io.h>
-#include <pcl/search/search.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/feature.h>
 #include <pcl/features/fpfh.h>

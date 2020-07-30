@@ -279,8 +279,13 @@ NarfKeypoint::calculateCompleteInterestImage ()
     was_touched.resize (array_size, false);
     std::vector<int> neighbors_to_check;
     
-#   pragma omp parallel for num_threads (parameters_.max_no_of_threads) default (shared) \
-                            firstprivate (was_touched, neighbors_to_check, angle_histogram) schedule (dynamic, 10)
+#pragma omp parallel for \
+  default(none) \
+  shared(array_size, border_descriptions, interest_image, range_image, radius_reciprocal, radius_squared, scale_idx, \
+         surface_change_directions, surface_change_scores, start_usage_range) \
+  firstprivate(was_touched, neighbors_to_check, angle_histogram) \
+  schedule(dynamic, 10) \
+  num_threads(parameters_.max_no_of_threads)
     for (int index=0; index<array_size; ++index)
     {
       float& interest_value = interest_image[index];
@@ -290,7 +295,7 @@ NarfKeypoint::calculateCompleteInterestImage ()
       int y = index/range_image.width,
           x = index - y*range_image.width;
       
-      const BorderTraits& border_traits = border_descriptions.points[index].traits;
+      const BorderTraits& border_traits = border_descriptions[index].traits;
       if (border_traits[BORDER_TRAIT__SHADOW_BORDER] || border_traits[BORDER_TRAIT__VEIL_POINT])
         continue;
       
@@ -323,7 +328,7 @@ NarfKeypoint::calculateCompleteInterestImage ()
         int index2 = neighbors_to_check[neighbors_to_check_idx];
         if (!range_image.isValid (index2))
           continue;
-        const BorderTraits& border_traits2 = border_descriptions.points[index2].traits;
+        const BorderTraits& border_traits2 = border_descriptions[index2].traits;
         if (border_traits2[BORDER_TRAIT__SHADOW_BORDER] || border_traits2[BORDER_TRAIT__VEIL_POINT])
           continue;
         int y2 = index2/range_image.width,
@@ -455,7 +460,7 @@ NarfKeypoint::calculateSparseInterestImage ()
     interest_image_[index] = 0.0f;
     if (!range_image.isValid (index))
       continue;
-    const BorderTraits& border_traits = border_descriptions.points[index].traits;
+    const BorderTraits& border_traits = border_descriptions[index].traits;
     if (border_traits[BORDER_TRAIT__SHADOW_BORDER] || border_traits[BORDER_TRAIT__VEIL_POINT])
       continue;
     interest_image_[index] = 2.0f;
@@ -473,9 +478,13 @@ NarfKeypoint::calculateSparseInterestImage ()
                    neighbors_within_radius_overhead;
   
   //double interest_value_calculation_start_time = getTime ();
-# pragma omp parallel for default (shared) num_threads (parameters_.max_no_of_threads) schedule (guided, 10) \
-                          firstprivate (was_touched, neighbors_to_check, angle_histogram, neighbors_within_radius_overhead, \
-                                        angle_elements, relevant_point_still_valid) 
+#pragma omp parallel for \
+  default(none) \
+  shared(array_size, border_descriptions, increased_radius_squared, radius_reciprocal, radius_overhead_squared, range_image, search_radius, \
+         surface_change_directions, surface_change_scores) \
+  num_threads(parameters_.max_no_of_threads) \
+  schedule(guided, 10) \
+  firstprivate(was_touched, neighbors_to_check, angle_histogram, neighbors_within_radius_overhead, angle_elements, relevant_point_still_valid) 
   for (int index=0; index<array_size; ++index)
   {
     if (interest_image_[index] <= 1.0f)
@@ -506,7 +515,7 @@ NarfKeypoint::calculateSparseInterestImage ()
       int index2 = neighbors_to_check[neighbors_to_check_idx];
       if (!range_image.isValid (index2))
         continue;
-      const BorderTraits& border_traits2 = border_descriptions.points[index2].traits;
+      const BorderTraits& border_traits2 = border_descriptions[index2].traits;
       if (border_traits2[BORDER_TRAIT__SHADOW_BORDER] || border_traits2[BORDER_TRAIT__VEIL_POINT])
         continue;
       int y2 = index2/range_image.width,
@@ -776,7 +785,7 @@ NarfKeypoint::calculateInterestPoints ()
             if (invalid_beams[i] || !range_image.isValid (x2, y2))
               continue;
             int index2 = y2*width + x2;
-            const BorderTraits& neighbor_border_traits = border_descriptions.points[index2].traits;
+            const BorderTraits& neighbor_border_traits = border_descriptions[index2].traits;
             if (neighbor_border_traits[BORDER_TRAIT__SHADOW_BORDER] || neighbor_border_traits[BORDER_TRAIT__VEIL_POINT])
             {
               invalid_beams[i] = true;
@@ -854,7 +863,7 @@ NarfKeypoint::calculateInterestPoints ()
     if (range_image.isValid (image_x, image_y))
       is_interest_point_image_[image_y*width + image_x] = true;
   }
-  interest_points_->width = static_cast<std::uint32_t> (interest_points_->points.size ());
+  interest_points_->width = interest_points_->size ();
   interest_points_->height = 1;
   interest_points_->is_dense = true;
 }

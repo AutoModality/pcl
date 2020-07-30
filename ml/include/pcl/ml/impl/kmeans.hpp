@@ -47,22 +47,18 @@
 //#include <stdlib.h>
 //#include <time.h>
 
+namespace pcl {
 template <typename PointT>
-pcl::Kmeans<PointT>::Kmeans() : cluster_field_name_("")
+Kmeans<PointT>::Kmeans() : cluster_field_name_("")
 {}
 
 template <typename PointT>
-pcl::Kmeans<PointT>::~Kmeans()
-{}
-
-template <typename PointT>
-void
-pcl::Kmeans<PointT>::k_means()
+Kmeans<PointT>::~Kmeans()
 {}
 
 template <typename PointT>
 void
-pcl::Kmeans<PointT>::cluster(std::vector<PointIndices>& clusters)
+Kmeans<PointT>::cluster(std::vector<PointIndices>& clusters)
 {
   if (!initCompute() || (input_ != 0 && input_->points.empty()) ||
       (indices_ != 0 && indices_->empty())) {
@@ -73,7 +69,6 @@ pcl::Kmeans<PointT>::cluster(std::vector<PointIndices>& clusters)
   pcl::PointCloud<PointT> point;
   std::vector<pcl::PCLPointField> fields;
 
-  int user_index = -1;
   // if no cluster field name is set, check for X Y Z
   if (strcmp(cluster_field_name_.c_str(), "") == 0) {
     int x_index = -1;
@@ -93,10 +88,10 @@ pcl::Kmeans<PointT>::cluster(std::vector<PointIndices>& clusters)
     PCL_INFO("Use X Y Z as input data\n");
     // create input data
     /*
-        for (std::size_t i = 0; i < input_->points.size (); i++)
+        for (std::size_t i = 0; i < input_->size (); i++)
         {
           DataPoint data (3);
-          data[0] = input_->points[i].data[0];
+          data[0] = (*input_)[i].data[0];
 
 
 
@@ -106,22 +101,22 @@ pcl::Kmeans<PointT>::cluster(std::vector<PointIndices>& clusters)
     std::cout << "x index: " << x_index << std::endl;
 
     float x = 0.0;
-    memcpy(&x, &input_->points[0] + fields[x_index].offset, sizeof(float));
+    memcpy(&x, &(*input_)[0] + fields[x_index].offset, sizeof(float));
 
     std::cout << "xxx: " << x << std::endl;
 
-    // memcpy (&x, reinterpret_cast<float*> (&input_->points[0]) + x_index, sizeof
+    // memcpy (&x, reinterpret_cast<float*> (&(*input_)[0]) + x_index, sizeof
     // (float));
 
     // int rgba_index = 1;
 
     // pcl::RGB rgb;
     // memcpy (&rgb, reinterpret_cast<const char*>
-    // (&input_->points[index_vector[i].cloud_point_index]) + rgba_index, sizeof (RGB));
+    // (&(*input_)[index_vector[i].cloud_point_index]) + rgba_index, sizeof (RGB));
   }
   // if cluster field name is set, check if field name is valid
   else {
-    user_index = pcl::getFieldIndex<PointT>(cluster_field_name_.c_str(), fields);
+    int user_index = pcl::getFieldIndex<PointT>(cluster_field_name_.c_str(), fields);
 
     if (user_index == -1) {
       PCL_ERROR("Failed to find match for field '%s'\n", cluster_field_name_.c_str());
@@ -156,12 +151,13 @@ pcl::Kmeans<PointT>::cluster(std::vector<PointIndices>& clusters)
     for (std::size_t i = 0; i < fields[vfh_idx].count; ++i)
     {
 
-      //vfh.second[i] = point.points[0].histogram[i];
+      //vfh.second[i] = point[0].histogram[i];
 
     }
   */
 
   deinitCompute();
 }
+} // namespace pcl
 
 #define PCL_INSTANTIATE_Kmeans(T) template class PCL_EXPORTS pcl::Kmeans<T>;

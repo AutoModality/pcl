@@ -41,21 +41,14 @@
 #pragma GCC system_header
 #endif
 
-#include <boost/intrusive/hashtable.hpp>
-#include <map>
-#include <pcl/common/eigen.h>
+#include <pcl/memory.h>
+
+#include <cstring>
+#include <iostream> // for size_t, operator<<, endl, cout
 #include <vector>
 
-// TODO: SWAP with Boost intrusive hash table
-#include <cassert>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-
-#include <pcl/pcl_macros.h>
-
 namespace pcl {
+
 /** Implementation of a high-dimensional gaussian filtering using the permutohedral
  *  lattice.
  *

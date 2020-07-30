@@ -37,7 +37,7 @@
  */
 
 #include <pcl/filters/impl/filter_indices.hpp>
-#include <pcl/PCLPointCloud2.h>
+namespace pcl { struct PCLPointCloud2; }
 
 /** \brief Base method for feature estimation for all points given in
  * <setInputCloud (), setIndices ()> using the surface in setSearchSurface ()
@@ -62,6 +62,7 @@ pcl::FilterIndices<pcl::PCLPointCloud2>::filter (std::vector<int> &indices)
 
 // Instantiations of specific point types
 PCL_INSTANTIATE(removeNanFromPointCloud, PCL_XYZ_POINT_TYPES)
+PCL_INSTANTIATE(FilterIndices, PCL_POINT_TYPES)
 
 #endif    // PCL_NO_PRECOMPILE
 

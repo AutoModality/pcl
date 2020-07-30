@@ -37,8 +37,9 @@
  *
  */
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 
+#include <pcl/memory.h>
 #include <pcl/pcl_macros.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
@@ -46,7 +47,6 @@
 #include <pcl/common/io.h>
 
 #include <pcl/pcl_tests.h>
-#include <pcl/test/gtest.h>
 
 using namespace pcl;
 
@@ -103,7 +103,7 @@ class Transforms : public ::testing::Test
   pcl::PointCloud<pcl::PointXYZRGBNormal> p_xyz_normal, p_xyz_normal_trans;
 
   // Indices, every second point
-  std::vector<int> indices;
+  Indices indices;
 
   PCL_MAKE_ALIGNED_OPERATOR_NEW;
 };
@@ -266,7 +266,7 @@ TEST (PCL, Matrix4Affine3Transform)
 
   affine = transformation;
 
-  std::vector<int> indices (1); indices[0] = 0;
+  Indices indices (1); indices[0] = 0;
 
   pcl::transformPointCloud (c, indices, ct, affine);
   EXPECT_NEAR (pt.x, ct[0].x, 1e-4);

@@ -38,12 +38,12 @@
 
 #pragma once
 
-#include <pcl/point_cloud.h>
-
 #include <pcl/octree/octree_pointcloud.h>
+#include <pcl/point_cloud.h>
 
 namespace pcl {
 namespace octree {
+
 /** \brief @b Octree pointcloud search class
  * \note This class provides several methods for spatial neighbor search based on octree
  * structure
@@ -167,7 +167,7 @@ public:
                       int& result_index,
                       float& sqr_distance)
   {
-    return (approxNearestSearch(cloud.points[query_index], result_index, sqr_distance));
+    return (approxNearestSearch(cloud[query_index], result_index, sqr_distance));
   }
 
   /** \brief Search for approx. nearest neighbor at the query point.
@@ -207,8 +207,7 @@ public:
                std::vector<float>& k_sqr_distances,
                unsigned int max_nn = 0)
   {
-    return (
-        radiusSearch(cloud.points[index], radius, k_indices, k_sqr_distances, max_nn));
+    return (radiusSearch(cloud[index], radius, k_indices, k_sqr_distances, max_nn));
   }
 
   /** \brief Search for all neighbors of query point that are within a given radius.
@@ -339,8 +338,8 @@ protected:
     prioPointQueueEntry() : point_idx_(0), point_distance_(0) {}
 
     /** \brief Constructor for initializing priority queue entry.
-     * \param[in] point_idx an index representing a point in the dataset given by \a
-     * setInputCloud \param[in] point_distance distance of query point to voxel center
+     * \param[in] point_idx index for a dataset point given by \a setInputCloud
+     * \param[in] point_distance distance of query point to voxel center
      */
     prioPointQueueEntry(unsigned int& point_idx, float point_distance)
     : point_idx_(point_idx), point_distance_(point_distance)

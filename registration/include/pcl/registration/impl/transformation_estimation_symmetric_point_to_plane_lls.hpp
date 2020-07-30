@@ -39,49 +39,62 @@
 
 #include <pcl/cloud_iterator.h>
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace pcl
+{
+
+namespace registration
+{
+
 template <typename PointSource, typename PointTarget, typename Scalar> inline void
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 estimateRigidTransformation (const pcl::PointCloud<PointSource> &cloud_src,
                              const pcl::PointCloud<PointTarget> &cloud_tgt,
                              Matrix4 &transformation_matrix) const
 {
-  const auto nr_points = cloud_src.points.size ();
-  if (cloud_tgt.points.size () != nr_points)
+  const auto nr_points = cloud_src.size ();
+  if (cloud_tgt.size () != nr_points)
   {
-    PCL_ERROR ("[pcl::TransformationEstimationSymmetricPointToPlaneLLS::estimateRigidTransformation] Number or points in source (%lu) differs from target (%lu)!\n", nr_points, cloud_tgt.points.size ());
+    PCL_ERROR("[pcl::TransformationEstimationSymmetricPointToPlaneLLS::"
+              "estimateRigidTransformation] Number or points in source (%zu) differs "
+              "from target (%zu)!\n",
+              static_cast<std::size_t>(nr_points),
+              static_cast<std::size_t>(cloud_tgt.size()));
     return;
   }
 
   ConstCloudIterator<PointSource> source_it (cloud_src);
   ConstCloudIterator<PointTarget> target_it (cloud_tgt);
-  estimateRigidTransformation (source_it, target_it, transformation_matrix);  
+  estimateRigidTransformation (source_it, target_it, transformation_matrix);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename PointSource, typename PointTarget, typename Scalar> void
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 estimateRigidTransformation (const pcl::PointCloud<PointSource> &cloud_src,
                              const std::vector<int> &indices_src,
                              const pcl::PointCloud<PointTarget> &cloud_tgt,
                              Matrix4 &transformation_matrix) const
 {
   const auto nr_points = indices_src.size ();
-  if (cloud_tgt.points.size () != nr_points)
+  if (cloud_tgt.size () != nr_points)
   {
-    PCL_ERROR ("[pcl::TransformationEstimationSymmetricPointToPlaneLLS::estimateRigidTransformation] Number or points in source (%lu) differs than target (%lu)!\n", indices_src.size (), cloud_tgt.points.size ());
+    PCL_ERROR("[pcl::TransformationEstimationSymmetricPointToPlaneLLS::"
+              "estimateRigidTransformation] Number or points in source (%zu) differs "
+              "than target (%zu)!\n",
+              indices_src.size(),
+              static_cast<std::size_t>(cloud_tgt.size()));
     return;
   }
 
   ConstCloudIterator<PointSource> source_it (cloud_src, indices_src);
   ConstCloudIterator<PointTarget> target_it (cloud_tgt);
-  estimateRigidTransformation (source_it, target_it, transformation_matrix);  
+  estimateRigidTransformation (source_it, target_it, transformation_matrix);
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointSource, typename PointTarget, typename Scalar> inline void
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 estimateRigidTransformation (const pcl::PointCloud<PointSource> &cloud_src,
                              const std::vector<int> &indices_src,
                              const pcl::PointCloud<PointTarget> &cloud_tgt,
@@ -91,18 +104,22 @@ estimateRigidTransformation (const pcl::PointCloud<PointSource> &cloud_src,
   const auto nr_points = indices_src.size ();
   if (indices_tgt.size () != nr_points)
   {
-    PCL_ERROR ("[pcl::TransformationEstimationSymmetricPointToPlaneLLS::estimateRigidTransformation] Number or points in source (%lu) differs than target (%lu)!\n", indices_src.size (), indices_tgt.size ());
+    PCL_ERROR("[pcl::TransformationEstimationSymmetricPointToPlaneLLS::"
+              "estimateRigidTransformation] Number or points in source (%zu) differs "
+              "than target (%zu)!\n",
+              indices_src.size(),
+              indices_tgt.size());
     return;
   }
 
   ConstCloudIterator<PointSource> source_it (cloud_src, indices_src);
   ConstCloudIterator<PointTarget> target_it (cloud_tgt, indices_tgt);
-  estimateRigidTransformation (source_it, target_it, transformation_matrix);  
+  estimateRigidTransformation (source_it, target_it, transformation_matrix);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename PointSource, typename PointTarget, typename Scalar> inline void
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 estimateRigidTransformation (const pcl::PointCloud<PointSource> &cloud_src,
                              const pcl::PointCloud<PointTarget> &cloud_tgt,
                              const pcl::Correspondences &correspondences,
@@ -113,13 +130,13 @@ estimateRigidTransformation (const pcl::PointCloud<PointSource> &cloud_src,
   estimateRigidTransformation (source_it, target_it, transformation_matrix);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename PointSource, typename PointTarget, typename Scalar> inline void
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 constructTransformationMatrix (const Vector6 &parameters,
                                Matrix4 &transformation_matrix) const
 {
-  // Construct the transformation matrix from rotation and translation 
+  // Construct the transformation matrix from rotation and translation
   const Eigen::AngleAxis<Scalar> rotation_z (parameters (2), Eigen::Matrix<Scalar, 3, 1>::UnitZ ());
   const Eigen::AngleAxis<Scalar> rotation_y (parameters (1), Eigen::Matrix<Scalar, 3, 1>::UnitY ());
   const Eigen::AngleAxis<Scalar> rotation_x (parameters (0), Eigen::Matrix<Scalar, 3, 1>::UnitX ());
@@ -130,9 +147,9 @@ constructTransformationMatrix (const Vector6 &parameters,
   transformation_matrix = transform.matrix ();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename PointSource, typename PointTarget, typename Scalar> inline void
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 estimateRigidTransformation (ConstCloudIterator<PointSource>& source_it, ConstCloudIterator<PointTarget>& target_it, Matrix4 &transformation_matrix) const
 {
   using Matrix6 = Eigen::Matrix<Scalar, 6, 6>;
@@ -176,29 +193,33 @@ estimateRigidTransformation (ConstCloudIterator<PointSource>& source_it, ConstCl
     Vector6 v;
     v << (p + q).cross (n), n;
     M.rankUpdate (v);
-   
+
     ATb += v * (q - p).dot (n);
   }
 
   // Solve A*x = b
   const Vector6 x = M.ldlt ().solve (ATb);
-  
+
   // Construct the transformation matrix from x
   constructTransformationMatrix (x, transformation_matrix);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+
 template <typename PointSource, typename PointTarget, typename Scalar> inline void
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 setEnforceSameDirectionNormals (bool enforce_same_direction_normals)
 {
     enforce_same_direction_normals_ = enforce_same_direction_normals;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
-template <typename PointSource, typename PointTarget, typename Scalar> inline bool 
-pcl::registration::TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
+
+template <typename PointSource, typename PointTarget, typename Scalar> inline bool
+TransformationEstimationSymmetricPointToPlaneLLS<PointSource, PointTarget, Scalar>::
 getEnforceSameDirectionNormals ()
 {
     return enforce_same_direction_normals_;
 }
+
+} // namespace registration
+} // namespace pcl
+

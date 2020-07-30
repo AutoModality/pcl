@@ -46,10 +46,12 @@
 #include <memory>
 #include <set>
 
+#include <pcl/memory.h>
 #include <pcl/pcl_macros.h>
 #include <pcl/pcl_base.h>
 #include <pcl/console/print.h>
 #include <pcl/point_cloud.h>
+#include <pcl/types.h> // for index_t, Indices
 #include <pcl/sample_consensus/boost.h>
 #include <pcl/sample_consensus/model_types.h>
 
@@ -128,10 +130,10 @@ namespace pcl
         * \param[in] random if true set the random seed to the current time, else set to 12345 (default: false)
         */
       SampleConsensusModel (const PointCloudConstPtr &cloud, 
-                            const std::vector<int> &indices, 
+                            const Indices &indices,
                             bool random = false) 
         : input_ (cloud)
-        , indices_ (new std::vector<int> (indices))
+        , indices_ (new Indices (indices))
         , radius_min_ (-std::numeric_limits<double>::max ())
         , radius_max_ (std::numeric_limits<double>::max ())
         , samples_radius_ (0.)
@@ -143,9 +145,12 @@ namespace pcl
         else
           rng_alg_.seed (12345u);
 
-        if (indices_->size () > input_->points.size ())
+        if (indices_->size () > input_->size ())
         {
-          PCL_ERROR ("[pcl::SampleConsensusModel] Invalid index vector given with size %lu while the input PointCloud has size %lu!\n", indices_->size (), input_->points.size ());
+          PCL_ERROR("[pcl::SampleConsensusModel] Invalid index vector given with size "
+                    "%zu while the input PointCloud has size %zu!\n",
+                    indices_->size(),
+                    static_cast<std::size_t>(input_->size()));
           indices_->clear ();
         }
         shuffled_indices_ = *indices_;
@@ -163,7 +168,7 @@ namespace pcl
         * \param[out] samples the resultant model samples
         */
       virtual void 
-      getSamples (int &iterations, std::vector<int> &samples)
+      getSamples (int &iterations, Indices &samples)
       {
         // We're assuming that indices_ have already been set in the constructor
         if (indices_->size () < getSampleSize ())
@@ -206,7 +211,7 @@ namespace pcl
         * \param[out] model_coefficients the computed model coefficients
         */
       virtual bool
-      computeModelCoefficients (const std::vector<int> &samples,
+      computeModelCoefficients (const Indices &samples,
                                 Eigen::VectorXf &model_coefficients) const = 0;
 
       /** \brief Recompute the model coefficients using the given inlier set
@@ -220,7 +225,7 @@ namespace pcl
         * \param[out] optimized_coefficients the resultant recomputed coefficients after non-linear optimization
         */
       virtual void
-      optimizeModelCoefficients (const std::vector<int> &inliers,
+      optimizeModelCoefficients (const Indices &inliers,
                                  const Eigen::VectorXf &model_coefficients,
                                  Eigen::VectorXf &optimized_coefficients) const = 0;
 
@@ -244,7 +249,7 @@ namespace pcl
       virtual void 
       selectWithinDistance (const Eigen::VectorXf &model_coefficients, 
                             const double threshold,
-                            std::vector<int> &inliers) = 0;
+                            Indices &inliers) = 0;
 
       /** \brief Count all the points which respect the given model
         * coefficients as inliers. Pure virtual.
@@ -268,7 +273,7 @@ namespace pcl
         * the point projections on the plane model
         */
       virtual void
-      projectPoints (const std::vector<int> &inliers,
+      projectPoints (const Indices &inliers,
                      const Eigen::VectorXf &model_coefficients,
                      PointCloud &projected_points,
                      bool copy_data_fields = true) const = 0;
@@ -282,7 +287,7 @@ namespace pcl
         * determining the inliers from the outliers
         */
       virtual bool 
-      doSamplesVerifyModel (const std::set<int> &indices,
+      doSamplesVerifyModel (const std::set<index_t> &indices,
                             const Eigen::VectorXf &model_coefficients,
                             const double threshold) const = 0;
 
@@ -294,13 +299,13 @@ namespace pcl
       {
         input_ = cloud;
         if (!indices_)
-          indices_.reset (new std::vector<int> ());
+          indices_.reset (new Indices ());
         if (indices_->empty ())
         {
           // Prepare a set of indices to be used (entire cloud)
-          indices_->resize (cloud->points.size ());
-          for (std::size_t i = 0; i < cloud->points.size (); ++i) 
-            (*indices_)[i] = static_cast<int> (i);
+          indices_->resize (cloud->size ());
+          for (std::size_t i = 0; i < cloud->size (); ++i) 
+            (*indices_)[i] = static_cast<index_t> (i);
         }
         shuffled_indices_ = *indices_;
        }
@@ -323,9 +328,9 @@ namespace pcl
         * \param[out] indices the vector of indices that represents the input data.
         */
       inline void 
-      setIndices (const std::vector<int> &indices) 
+      setIndices (const Indices &indices)
       { 
-        indices_.reset (new std::vector<int> (indices));
+        indices_.reset (new Indices (indices));
         shuffled_indices_ = indices;
        }
 
@@ -441,7 +446,7 @@ namespace pcl
         * \param[out] sample the set of indices of target_ to analyze
         */
       inline void
-      drawIndexSample (std::vector<int> &sample)
+      drawIndexSample (Indices &sample)
       {
         std::size_t sample_size = sample.size ();
         std::size_t index_size = shuffled_indices_.size ();
@@ -458,7 +463,7 @@ namespace pcl
         * \param[out] sample the set of indices of target_ to analyze
         */
       inline void
-      drawIndexSampleRadius (std::vector<int> &sample)
+      drawIndexSampleRadius (Indices &sample)
       {
         std::size_t sample_size = sample.size ();
         std::size_t index_size = shuffled_indices_.size ();
@@ -466,7 +471,7 @@ namespace pcl
         std::swap (shuffled_indices_[0], shuffled_indices_[0 + (rnd () % (index_size - 0))]);
         //const PointT& pt0 = (*input_)[shuffled_indices_[0]];
 
-        std::vector<int> indices;
+        Indices indices;
         std::vector<float> sqr_dists;
 
         // If indices have been set when the search object was constructed,
@@ -506,7 +511,7 @@ namespace pcl
       {
         if (model_coefficients.size () != model_size_)
         {
-          PCL_ERROR ("[pcl::%s::isModelValid] Invalid number of model coefficients given (%lu)!\n", getClassName ().c_str (), model_coefficients.size ());
+          PCL_ERROR ("[pcl::%s::isModelValid] Invalid number of model coefficients given (is %lu, should be %lu)!\n", getClassName ().c_str (), model_coefficients.size (), model_size_);
           return (false);
         }
         return (true);
@@ -517,7 +522,7 @@ namespace pcl
         * \param[in] samples the resultant index samples
         */
       virtual bool
-      isSampleGood (const std::vector<int> &samples) const = 0;
+      isSampleGood (const Indices &samples) const = 0;
 
       /** \brief The model name. */
       std::string model_name_;
@@ -543,7 +548,7 @@ namespace pcl
       SearchPtr samples_radius_search_;
 
       /** Data containing a shuffled version of the indices. This is used and modified when drawing samples. */
-      std::vector<int> shuffled_indices_;
+      Indices shuffled_indices_;
 
       /** \brief Boost-based random number generator algorithm. */
       boost::mt19937 rng_alg_;

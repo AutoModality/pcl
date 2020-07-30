@@ -39,10 +39,9 @@
  */
 
 #include <cstdio>
-#include <fstream>
 #include <string>
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 
 #include <pcl/geometry/triangle_mesh.h>
 #include <pcl/geometry/mesh_io.h>

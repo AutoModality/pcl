@@ -46,10 +46,10 @@
 #include <Eigen/Geometry>
 #include <pcl/PCLHeader.h>
 #include <pcl/exceptions.h>
+#include <pcl/memory.h>
 #include <pcl/pcl_macros.h>
-#include <pcl/point_traits.h>
-
-#include <pcl/make_shared.h>
+#include <pcl/type_traits.h>
+#include <pcl/types.h>
 
 #include <algorithm>
 #include <utility>
@@ -138,7 +138,7 @@ namespace pcl
   namespace detail
   {
     template <typename PointT>
-    PCL_DEPRECATED("use createMapping() instead")
+    PCL_DEPRECATED(1, 12, "use createMapping() instead")
     shared_ptr<pcl::MsgFieldMap>&
     getMapping (pcl::PointCloud<PointT>& p);
   } // namespace detail
@@ -186,19 +186,33 @@ namespace pcl
         */
       PointCloud () = default;
 
+      /** \brief Copy constructor.
+        * \param[in] pc the cloud to copy into this
+        * \todo Erase once mapping_ is removed.
+        */
+      // Ignore unknown pragma warning on MSVC (4996)
+      #pragma warning(push)
+      #pragma warning(disable: 4068)
+      // Ignore deprecated warning on clang compilers
+      #pragma clang diagnostic push
+      #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      PointCloud (const PointCloud<PointT> &pc) = default;
+      #pragma clang diagnostic pop
+      #pragma warning(pop)
+
       /** \brief Copy constructor from point cloud subset
         * \param[in] pc the cloud to copy into this
         * \param[in] indices the subset to copy
         */
       PointCloud (const PointCloud<PointT> &pc,
-                  const std::vector<int> &indices) :
+                  const Indices &indices) :
         header (pc.header), points (indices.size ()), width (indices.size ()), height (1), is_dense (pc.is_dense),
         sensor_origin_ (pc.sensor_origin_), sensor_orientation_ (pc.sensor_orientation_)
       {
         // Copy the obvious
         assert (indices.size () <= pc.size ());
         for (std::size_t i = 0; i < indices.size (); i++)
-          points[i] = pc.points[indices[i]];
+          points[i] = pc[indices[i]];
       }
 
       /** \brief Allocate constructor from point cloud subset
@@ -246,7 +260,7 @@ namespace pcl
         // This causes a drastic performance hit. Prefer not to use reserve with libstdc++ (default on clang)
         cloud1.points.insert (cloud1.points.end (), cloud2.points.begin (), cloud2.points.end ());
 
-        cloud1.width    = static_cast<std::uint32_t>(cloud1.points.size ());
+        cloud1.width    = cloud1.size ();
         cloud1.height   = 1;
         cloud1.is_dense = cloud1.is_dense && cloud2.is_dense;
         return true;
@@ -321,7 +335,6 @@ namespace pcl
       }
 
       /** \brief Return an Eigen MatrixXf (assumes float values) mapped to the specified dimensions of the PointCloud.
-        * \anchor getMatrixXfMap
         * \note This method is for advanced users only! Use with care!
         *
         * \attention Since 1.4.0, Eigen matrices are forced to Row Major to increase the efficiency of the algorithms in PCL
@@ -339,13 +352,12 @@ namespace pcl
       getMatrixXfMap (int dim, int stride, int offset)
       {
         if (Eigen::MatrixXf::Flags & Eigen::RowMajorBit)
-          return (Eigen::Map<Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(&points[0])+offset, points.size (), dim, Eigen::OuterStride<> (stride)));
+          return (Eigen::Map<Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(&points[0])+offset, size (), dim, Eigen::OuterStride<> (stride)));
         else
-          return (Eigen::Map<Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(&points[0])+offset, dim, points.size (), Eigen::OuterStride<> (stride)));
+          return (Eigen::Map<Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(&points[0])+offset, dim, size (), Eigen::OuterStride<> (stride)));
       }
 
       /** \brief Return an Eigen MatrixXf (assumes float values) mapped to the specified dimensions of the PointCloud.
-        * \anchor getMatrixXfMap
         * \note This method is for advanced users only! Use with care!
         *
         * \attention Since 1.4.0, Eigen matrices are forced to Row Major to increase the efficiency of the algorithms in PCL
@@ -363,27 +375,29 @@ namespace pcl
       getMatrixXfMap (int dim, int stride, int offset) const
       {
         if (Eigen::MatrixXf::Flags & Eigen::RowMajorBit)
-          return (Eigen::Map<const Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(const_cast<PointT*>(&points[0]))+offset, points.size (), dim, Eigen::OuterStride<> (stride)));
+          return (Eigen::Map<const Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(const_cast<PointT*>(&points[0]))+offset, size (), dim, Eigen::OuterStride<> (stride)));
         else
-          return (Eigen::Map<const Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(const_cast<PointT*>(&points[0]))+offset, dim, points.size (), Eigen::OuterStride<> (stride)));
+          return (Eigen::Map<const Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >(reinterpret_cast<float*>(const_cast<PointT*>(&points[0]))+offset, dim, size (), Eigen::OuterStride<> (stride)));
       }
 
-      /** \brief Return an Eigen MatrixXf (assumes float values) mapped to the PointCloud.
-        * \note This method is for advanced users only! Use with care!
-        * \attention PointT types are most of the time aligned, so the offsets are not continuous!
-        * See \ref getMatrixXfMap for more information.
-        */
+      /**
+       * \brief Return an Eigen MatrixXf (assumes float values) mapped to the PointCloud.
+       * \note This method is for advanced users only! Use with care!
+       * \attention PointT types are most of the time aligned, so the offsets are not continuous!
+       * \overload Eigen::Map<Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> > pcl::PointCloud::getMatrixXfMap ()
+       */
       inline Eigen::Map<Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >
       getMatrixXfMap ()
       {
         return (getMatrixXfMap (sizeof (PointT) / sizeof (float),  sizeof (PointT) / sizeof (float), 0));
       }
 
-      /** \brief Return an Eigen MatrixXf (assumes float values) mapped to the PointCloud.
-        * \note This method is for advanced users only! Use with care!
-        * \attention PointT types are most of the time aligned, so the offsets are not continuous!
-        * See \ref getMatrixXfMap for more information.
-        */
+      /**
+       * \brief Return an Eigen MatrixXf (assumes float values) mapped to the PointCloud.
+       * \note This method is for advanced users only! Use with care!
+       * \attention PointT types are most of the time aligned, so the offsets are not continuous!
+       * \overload const Eigen::Map<Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> > pcl::PointCloud::getMatrixXfMap () const
+       */
       inline const Eigen::Map<const Eigen::MatrixXf, Eigen::Aligned, Eigen::OuterStride<> >
       getMatrixXfMap () const
       {
@@ -426,25 +440,68 @@ namespace pcl
       // iterators
       using iterator = typename VectorType::iterator;
       using const_iterator = typename VectorType::const_iterator;
-      inline iterator begin () { return (points.begin ()); }
-      inline iterator end ()   { return (points.end ()); }
-      inline const_iterator begin () const { return (points.begin ()); }
-      inline const_iterator end () const  { return (points.end ()); }
+      using reverse_iterator = typename VectorType::reverse_iterator;
+      using const_reverse_iterator = typename VectorType::const_reverse_iterator;
+      inline iterator begin () noexcept { return (points.begin ()); }
+      inline iterator end () noexcept { return (points.end ()); }
+      inline const_iterator begin () const noexcept { return (points.begin ()); }
+      inline const_iterator end () const noexcept { return (points.end ()); }
+      inline const_iterator cbegin () const noexcept { return (points.cbegin ()); }
+      inline const_iterator cend () const noexcept { return (points.cend ()); }
+      inline reverse_iterator rbegin () noexcept { return (points.rbegin ()); }
+      inline reverse_iterator rend () noexcept { return (points.rend ()); }
+      inline const_reverse_iterator rbegin () const noexcept { return (points.rbegin ()); }
+      inline const_reverse_iterator rend () const noexcept { return (points.rend ()); }
+      inline const_reverse_iterator crbegin () const noexcept { return (points.crbegin ()); }
+      inline const_reverse_iterator crend () const noexcept { return (points.crend ()); }
 
       //capacity
-      inline std::size_t size () const { return (points.size ()); }
+      inline std::size_t size () const { return points.size (); }
+      index_t max_size() const noexcept { return static_cast<index_t>(points.max_size()); }
       inline void reserve (std::size_t n) { points.reserve (n); }
       inline bool empty () const { return points.empty (); }
+      PointT* data() noexcept { return points.data(); }
+      const PointT* data() const noexcept { return points.data(); }
 
-      /** \brief Resize the cloud
-        * \param[in] n the new cloud size
-        */
-      inline void resize (std::size_t n)
+      /**
+       * \brief Resizes the container to contain `count` elements
+       * \details
+       * * If the current size is greater than `count`, the pointcloud is reduced to its
+       * first `count` elements
+       * * If the current size is less than `count`, additional default-inserted points
+       * are appended
+       * \note This potentially breaks the organized structure of the cloud by setting
+       * the height to 1 IFF `width * height != count`!
+       * \param[in] count new size of the point cloud
+       */
+      inline void
+      resize(std::size_t count)
       {
-        points.resize (n);
-        if (width * height != n)
-        {
-          width = static_cast<std::uint32_t> (n);
+        points.resize(count);
+        if (width * height != count) {
+          width = static_cast<std::uint32_t>(count);
+          height = 1;
+        }
+      }
+
+      /**
+       * \brief Resizes the container to contain count elements
+       * \details
+       * * If the current size is greater than `count`, the pointcloud is reduced to its
+       * first `count` elements
+       * * If the current size is less than `count`, additional copies of `value` are
+       * appended
+       * \note This potentially breaks the organized structure of the cloud by setting
+       * the height to 1 IFF `width * height != count`!
+       * \param[in] count new size of the point cloud
+       * \param[in] value the value to initialize the new points with
+       */
+      void
+      resize(index_t count, const PointT& value)
+      {
+        points.resize(count, value);
+        if (width * height != count) {
+          width = count;
           height = 1;
         }
       }
@@ -459,6 +516,48 @@ namespace pcl
       inline const PointT& back () const { return (points.back ()); }
       inline PointT& back () { return (points.back ()); }
 
+      /**
+       * \brief Replaces the points with `count` copies of `value`
+       * \note This breaks the organized structure of the cloud by setting the height to
+       * 1!
+       */
+      void
+      assign(index_t count, const PointT& value)
+      {
+        points.assign(count, value);
+        width = static_cast<std::uint32_t>(size());
+        height = 1;
+      }
+
+      /**
+       * \brief Replaces the points with copies of those in the range `[first, last)`
+       * \details The behavior is undefined if either argument is an iterator into
+       * `*this`
+       * \note This breaks the organized structure of the cloud by setting the height to
+       * 1!
+       */
+      template <class InputIt>
+      void
+      assign(InputIt first, InputIt last)
+      {
+        points.assign(std::move(first), std::move(last));
+        width = static_cast<std::uint32_t>(size());
+        height = 1;
+      }
+
+      /**
+       * \brief Replaces the points with the elements from the initializer list `ilist`
+       * \note This breaks the organized structure of the cloud by setting the height to
+       * 1!
+       */
+      void
+      assign(std::initializer_list<PointT> ilist)
+      {
+        points.assign(std::move(ilist));
+        width = static_cast<std::uint32_t>(size());
+        height = 1;
+      }
+
       /** \brief Insert a new point in the cloud, at the end of the container.
         * \note This breaks the organized structure of the cloud by setting the height to 1!
         * \param[in] pt the point to insert
@@ -467,7 +566,7 @@ namespace pcl
       push_back (const PointT& pt)
       {
         points.push_back (pt);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
       }
 
@@ -480,7 +579,7 @@ namespace pcl
       emplace_back (Args&& ...args)
       {
         points.emplace_back (std::forward<Args> (args)...);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
         return points.back();
       }
@@ -495,7 +594,7 @@ namespace pcl
       insert (iterator position, const PointT& pt)
       {
         iterator it = points.insert (position, pt);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
         return (it);
       }
@@ -510,7 +609,7 @@ namespace pcl
       insert (iterator position, std::size_t n, const PointT& pt)
       {
         points.insert (position, n, pt);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
       }
 
@@ -524,7 +623,7 @@ namespace pcl
       insert (iterator position, InputIterator first, InputIterator last)
       {
         points.insert (position, first, last);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
       }
 
@@ -538,7 +637,7 @@ namespace pcl
       emplace (iterator position, Args&& ...args)
       {
         iterator it = points.emplace (position, std::forward<Args> (args)...);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
         return (it);
       }
@@ -552,7 +651,7 @@ namespace pcl
       erase (iterator position)
       {
         iterator it = points.erase (position);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
         return (it);
       }
@@ -567,7 +666,7 @@ namespace pcl
       erase (iterator first, iterator last)
       {
         iterator it = points.erase (first, last);
-        width = static_cast<std::uint32_t> (points.size ());
+        width = size ();
         height = 1;
         return (it);
       }
@@ -605,8 +704,10 @@ namespace pcl
       makeShared () const { return Ptr (new PointCloud<PointT> (*this)); }
 
     protected:
-      // This is motivated by ROS integration. Users should not need to access mapping_.
-      PCL_DEPRECATED("rewrite your code to avoid using this protected field") shared_ptr<MsgFieldMap> mapping_;
+      /** \brief This is motivated by ROS integration. Users should not need to access mapping_.
+        * \todo Once mapping_ is removed, erase the explicitly defined copy constructor in PointCloud.
+        */
+      PCL_DEPRECATED(1, 12, "rewrite your code to avoid using this protected field") shared_ptr<MsgFieldMap> mapping_;
 
       friend shared_ptr<MsgFieldMap>& detail::getMapping<PointT>(pcl::PointCloud<PointT> &p);
 
@@ -627,7 +728,7 @@ namespace pcl
   operator << (std::ostream& s, const pcl::PointCloud<PointT> &p)
   {
     s << "header: " << p.header << std::endl;
-    s << "points[]: " << p.points.size () << std::endl;
+    s << "points[]: " << p.size () << std::endl;
     s << "width: " << p.width << std::endl;
     s << "height: " << p.height << std::endl;
     s << "is_dense: " << p.is_dense << std::endl;

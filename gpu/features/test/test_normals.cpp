@@ -42,7 +42,6 @@
 #include <pcl/gpu/containers/initialization.h>
 #include <pcl/search/search.h>
 
-using namespace std;
 using namespace pcl;
 using namespace pcl::gpu;
 
@@ -50,7 +49,7 @@ using namespace pcl::gpu;
 TEST(PCL_FeaturesGPU, normals_lowlevel)
 {       
     DataSource source;
-    std::cout << "Cloud size: " << source.cloud->points.size() << std::endl;
+    std::cout << "Cloud size: " << source.cloud->size() << std::endl;
     std::cout << "Radius: " << source.radius << std::endl;
     std::cout << "K: " << source.k << std::endl;
 
@@ -80,7 +79,7 @@ TEST(PCL_FeaturesGPU, normals_lowlevel)
 
     for(std::size_t i = 0; i < downloaded.size(); ++i)
     {
-        Normal n = source.normals->points[i];
+        Normal n = (*source.normals)[i];
 
         PointXYZ xyz = downloaded[i];
         float curvature = xyz.data[3];               
@@ -99,7 +98,7 @@ TEST(PCL_FeaturesGPU, normals_lowlevel)
 TEST(PCL_FeaturesGPU, normals_highlevel_1)
 {       
     DataSource source;
-    std::cout << "Cloud size: " << source.cloud->points.size() << std::endl;
+    std::cout << "Cloud size: " << source.cloud->size() << std::endl;
     std::cout << "Radius: " << source.radius << std::endl;
     std::cout << "Max_elems: " <<  source.max_elements << std::endl;
 
@@ -144,7 +143,7 @@ TEST(PCL_FeaturesGPU, normals_highlevel_1)
 
     for(std::size_t i = 0; i < downloaded.size(); ++i)
     {
-        Normal n = normals->points[i];
+        Normal n = (*normals)[i];
 
         PointXYZ xyz = downloaded[i];
         float curvature = xyz.data[3];                        
@@ -163,7 +162,7 @@ TEST(PCL_FeaturesGPU, normals_highlevel_1)
 TEST(PCL_FeaturesGPU, normals_highlevel_2)
 {       
     DataSource source;
-    std::cout << "Cloud size: " << source.cloud->points.size() << std::endl;
+    std::cout << "Cloud size: " << source.cloud->size() << std::endl;
     std::cout << "Radius: " << source.radius << std::endl;
     std::cout << "Max_elems: " <<  source.max_elements << std::endl;    
 
@@ -209,7 +208,7 @@ TEST(PCL_FeaturesGPU, normals_highlevel_2)
 
     for(std::size_t i = 0; i < downloaded.size(); ++i)
     {
-        Normal n = normals->points[i];
+        Normal n = (*normals)[i];
 
         PointXYZ xyz = downloaded[i];
         float curvature = xyz.data[3];                        
@@ -228,7 +227,7 @@ TEST(PCL_FeaturesGPU, normals_highlevel_2)
 TEST(PCL_FeaturesGPU, normals_highlevel_3)
 {       
     DataSource source;
-    std::cout << "Cloud size: " << source.cloud->points.size() << std::endl;
+    std::cout << "Cloud size: " << source.cloud->size() << std::endl;
     std::cout << "Radius: " << source.radius << std::endl;
     std::cout << "Max_elems: " <<  source.max_elements << std::endl;
 
@@ -274,7 +273,7 @@ TEST(PCL_FeaturesGPU, normals_highlevel_3)
 
     for(std::size_t i = 0; i < downloaded.size(); ++i)
     {
-        Normal n = normals->points[i];
+        Normal n = (*normals)[i];
 
         PointXYZ xyz = downloaded[i];
         float curvature = xyz.data[3];
@@ -302,7 +301,7 @@ TEST(PCL_FeaturesGPU, normals_highlevel_3)
 TEST(PCL_FeaturesGPU, normals_highlevel_4)
 {       
     DataSource source;
-    std::cout << "Cloud size: " << source.cloud->points.size() << std::endl;
+    std::cout << "Cloud size: " << source.cloud->size() << std::endl;
     std::cout << "Radius: " << source.radius << std::endl;
     std::cout << "Max_elems: " <<  source.max_elements << std::endl;
     
@@ -348,7 +347,7 @@ TEST(PCL_FeaturesGPU, normals_highlevel_4)
 
    for(std::size_t i = 0; i < downloaded.size(); ++i)
     {
-        Normal n = normals->points[i];
+        Normal n = (*normals)[i];
 
         PointXYZ xyz = downloaded[i];
         float curvature = xyz.data[3];
@@ -392,6 +391,41 @@ TEST(PCL_FeaturesGPU, issue_2371)
 
     pcl::gpu::NormalEstimation::Normals normals_gpu;
     ne_gpu.compute(normals_gpu);
+}
+
+// See:
+// - https://github.com/PointCloudLibrary/pcl/pull/3627#discussion_r375826172
+TEST(PCL_FeaturesGPU, normals_nan_gpu)
+{
+    const std::size_t N = 5;
+
+    PointCloud<PointXYZ> cloud;
+    cloud.points.assign(N, {0.0, 0.0, 0.0});
+
+    const float radius_search = 2.0F;
+    const int max_results = 500;
+
+    pcl::gpu::NormalEstimation::PointCloud cloud_device;
+    cloud_device.upload(cloud.points);
+
+    pcl::gpu::NormalEstimation ne_device;
+    ne_device.setInputCloud(cloud_device);
+    ne_device.setRadiusSearch(radius_search, max_results);
+
+    pcl::gpu::NormalEstimation::Normals normals_device;
+    ne_device.compute(normals_device);
+
+    std::vector<PointXYZ> downloaded;
+    normals_device.download(downloaded);
+
+    ASSERT_EQ(downloaded.size(), N);
+
+    for(const auto& n : downloaded)
+    {
+        ASSERT_TRUE(std::isnan(n.x));
+        ASSERT_TRUE(std::isnan(n.y));
+        ASSERT_TRUE(std::isnan(n.z));
+    }
 }
 
 int main (int argc, char** argv)

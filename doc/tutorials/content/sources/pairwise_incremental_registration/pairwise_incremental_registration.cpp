@@ -38,7 +38,7 @@
 /* \author Radu Bogdan Rusu
  * adaptation Raphael Favier*/
 
-#include <boost/make_shared.hpp>
+#include <pcl/memory.h>  // for pcl::make_shared
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_representation.h>
@@ -255,7 +255,7 @@ void pairAlign (const PointCloud::Ptr cloud_src, const PointCloud::Ptr cloud_tgt
   // Note: adjust this based on the size of your datasets
   reg.setMaxCorrespondenceDistance (0.1);  
   // Set the point representation
-  reg.setPointRepresentation (boost::make_shared<const MyPointRepresentation> (point_representation));
+  reg.setPointRepresentation (pcl::make_shared<const MyPointRepresentation> (point_representation));
 
   reg.setInputSource (points_with_normals_src);
   reg.setInputTarget (points_with_normals_tgt);
@@ -355,7 +355,7 @@ int main (int argc, char** argv)
     showCloudsLeft(source, target);
 
     PointCloud::Ptr temp (new PointCloud);
-    PCL_INFO ("Aligning %s (%d) with %s (%d).\n", data[i-1].f_name.c_str (), source->points.size (), data[i].f_name.c_str (), target->points.size ());
+    PCL_INFO ("Aligning %s (%zu) with %s (%zu).\n", data[i-1].f_name.c_str (), static_cast<std::size_t>(source->size ()), data[i].f_name.c_str (), static_cast<std::size_t>(target->size ()));
     pairAlign (source, target, temp, pairTransform, true);
 
     //transform current pair into the global transform

@@ -41,11 +41,14 @@
 
 #include <cassert>
 
-//////////////////////////////////////////////////////////////////////////////////////////////
+namespace pcl {
+
+namespace octree {
+
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 bool
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    voxelSearch(const PointT& point, std::vector<int>& point_idx_data)
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::voxelSearch(
+    const PointT& point, std::vector<int>& point_idx_data)
 {
   assert(isFinite(point) &&
          "Invalid (NaN, Inf) point coordinates given to nearestKSearch!");
@@ -65,24 +68,22 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return (b_success);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 bool
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    voxelSearch(const int index, std::vector<int>& point_idx_data)
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::voxelSearch(
+    const int index, std::vector<int>& point_idx_data)
 {
   const PointT search_point = this->getPointByIndex(index);
   return (this->voxelSearch(search_point, point_idx_data));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    nearestKSearch(const PointT& p_q,
-                   int k,
-                   std::vector<int>& k_indices,
-                   std::vector<float>& k_sqr_distances)
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::nearestKSearch(
+    const PointT& p_q,
+    int k,
+    std::vector<int>& k_indices,
+    std::vector<float>& k_sqr_distances)
 {
   assert(this->leaf_count_ > 0);
   assert(isFinite(p_q) &&
@@ -119,24 +120,19 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return static_cast<int>(k_indices.size());
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    nearestKSearch(int index,
-                   int k,
-                   std::vector<int>& k_indices,
-                   std::vector<float>& k_sqr_distances)
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::nearestKSearch(
+    int index, int k, std::vector<int>& k_indices, std::vector<float>& k_sqr_distances)
 {
   const PointT search_point = this->getPointByIndex(index);
   return (nearestKSearch(search_point, k, k_indices, k_sqr_distances));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 void
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    approxNearestSearch(const PointT& p_q, int& result_index, float& sqr_distance)
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::approxNearestSearch(
+    const PointT& p_q, int& result_index, float& sqr_distance)
 {
   assert(this->leaf_count_ > 0);
   assert(isFinite(p_q) &&
@@ -151,26 +147,24 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 void
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    approxNearestSearch(int query_index, int& result_index, float& sqr_distance)
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::approxNearestSearch(
+    int query_index, int& result_index, float& sqr_distance)
 {
   const PointT search_point = this->getPointByIndex(query_index);
 
   return (approxNearestSearch(search_point, result_index, sqr_distance));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    radiusSearch(const PointT& p_q,
-                 const double radius,
-                 std::vector<int>& k_indices,
-                 std::vector<float>& k_sqr_distances,
-                 unsigned int max_nn) const
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::radiusSearch(
+    const PointT& p_q,
+    const double radius,
+    std::vector<int>& k_indices,
+    std::vector<float>& k_sqr_distances,
+    unsigned int max_nn) const
 {
   assert(isFinite(p_q) &&
          "Invalid (NaN, Inf) point coordinates given to nearestKSearch!");
@@ -192,28 +186,26 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return (static_cast<int>(k_indices.size()));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    radiusSearch(int index,
-                 const double radius,
-                 std::vector<int>& k_indices,
-                 std::vector<float>& k_sqr_distances,
-                 unsigned int max_nn) const
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::radiusSearch(
+    int index,
+    const double radius,
+    std::vector<int>& k_indices,
+    std::vector<float>& k_sqr_distances,
+    unsigned int max_nn) const
 {
   const PointT search_point = this->getPointByIndex(index);
 
   return (radiusSearch(search_point, radius, k_indices, k_sqr_distances, max_nn));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    boxSearch(const Eigen::Vector3f& min_pt,
-              const Eigen::Vector3f& max_pt,
-              std::vector<int>& k_indices) const
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::boxSearch(
+    const Eigen::Vector3f& min_pt,
+    const Eigen::Vector3f& max_pt,
+    std::vector<int>& k_indices) const
 {
 
   OctreeKey key;
@@ -226,10 +218,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return (static_cast<int>(k_indices.size()));
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 double
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
     getKNearestNeighborRecursive(
         const PointT& point,
         unsigned int K,
@@ -339,10 +330,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return (smallest_squared_dist);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 void
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
     getNeighborsWithinRadiusRecursive(const PointT& point,
                                       const double radiusSquared,
                                       const BranchNode* node,
@@ -427,10 +417,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 void
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
     approxNearestSearchRecursive(const PointT& point,
                                  const BranchNode* node,
                                  const OctreeKey& key,
@@ -517,25 +506,23 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 float
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    pointSquaredDist(const PointT& point_a, const PointT& point_b) const
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::pointSquaredDist(
+    const PointT& point_a, const PointT& point_b) const
 {
   return (point_a.getVector3fMap() - point_b.getVector3fMap()).squaredNorm();
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 void
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
-    boxSearchRecursive(const Eigen::Vector3f& min_pt,
-                       const Eigen::Vector3f& max_pt,
-                       const BranchNode* node,
-                       const OctreeKey& key,
-                       unsigned int tree_depth,
-                       std::vector<int>& k_indices) const
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::boxSearchRecursive(
+    const Eigen::Vector3f& min_pt,
+    const Eigen::Vector3f& max_pt,
+    const BranchNode* node,
+    const OctreeKey& key,
+    unsigned int tree_depth,
+    std::vector<int>& k_indices) const
 {
   // iterate over all children
   for (unsigned char child_idx = 0; child_idx < 8; child_idx++) {
@@ -577,7 +564,6 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
       else {
         // we reached leaf node level
         std::vector<int> decoded_point_vector;
-        bool bInBox;
 
         const LeafNode* child_leaf = static_cast<const LeafNode*>(child_node);
 
@@ -589,7 +575,7 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
           const PointT& candidate_point = this->getPointByIndex(index);
 
           // check if point falls within search box
-          bInBox =
+          bool bInBox =
               ((candidate_point.x >= min_pt(0)) && (candidate_point.x <= max_pt(0)) &&
                (candidate_point.y >= min_pt(1)) && (candidate_point.y <= max_pt(1)) &&
                (candidate_point.z >= min_pt(2)) && (candidate_point.z <= max_pt(2)));
@@ -603,10 +589,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
     getIntersectedVoxelCenters(Eigen::Vector3f origin,
                                Eigen::Vector3f direction,
                                AlignedPointTVector& voxel_center_list,
@@ -640,10 +625,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return (0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
     getIntersectedVoxelIndices(Eigen::Vector3f origin,
                                Eigen::Vector3f direction,
                                std::vector<int>& k_indices,
@@ -675,10 +659,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return (0);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
     getIntersectedVoxelCentersRecursive(double min_x,
                                         double min_y,
                                         double min_z,
@@ -718,7 +701,6 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
 
   // Child index, node and key
   unsigned char child_idx;
-  const OctreeNode* child_node;
   OctreeKey child_key;
 
   do {
@@ -728,7 +710,7 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
       child_idx = a;
 
     // child_node == 0 if child_node doesn't exist
-    child_node =
+    const OctreeNode* child_node =
         this->getBranchChildPtr(static_cast<const BranchNode&>(*node), child_idx);
 
     // Generate new key for current branch voxel
@@ -873,10 +855,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
   return (voxel_count);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////
 template <typename PointT, typename LeafContainerT, typename BranchContainerT>
 int
-pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
+OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
     getIntersectedVoxelIndicesRecursive(double min_x,
                                         double min_y,
                                         double min_z,
@@ -915,7 +896,6 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
 
   // Child index, node and key
   unsigned char child_idx;
-  const OctreeNode* child_node;
   OctreeKey child_key;
   do {
     if (curr_node != 0)
@@ -924,7 +904,7 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
       child_idx = a;
 
     // child_node == 0 if child_node doesn't exist
-    child_node =
+    const OctreeNode* child_node =
         this->getBranchChildPtr(static_cast<const BranchNode&>(*node), child_idx);
     // Generate new key for current branch voxel
     child_key.x = (key.x << 1) | (!!(child_idx & (1 << 2)));
@@ -1067,6 +1047,9 @@ pcl::octree::OctreePointCloudSearch<PointT, LeafContainerT, BranchContainerT>::
 
   return (voxel_count);
 }
+
+} // namespace octree
+} // namespace pcl
 
 #define PCL_INSTANTIATE_OctreePointCloudSearch(T)                                      \
   template class PCL_EXPORTS pcl::octree::OctreePointCloudSearch<T>;

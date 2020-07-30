@@ -106,17 +106,17 @@ namespace pcl
         if (!do_voxel_grid_enDecoding_)
         {
           point_count_data_vector_.clear ();
-          point_count_data_vector_.reserve (cloud_arg->points.size ());
+          point_count_data_vector_.reserve (cloud_arg->size ());
         }
 
         // initialize color encoding
         color_coder_.initializeEncoding ();
-        color_coder_.setPointCount (static_cast<unsigned int> (cloud_arg->points.size ()));
+        color_coder_.setPointCount (static_cast<unsigned int> (cloud_arg->size ()));
         color_coder_.setVoxelCount (static_cast<unsigned int> (this->leaf_count_));
 
         // initialize point encoding
         point_coder_.initializeEncoding ();
-        point_coder_.setPointCount (static_cast<unsigned int> (cloud_arg->points.size ()));
+        point_coder_.setPointCount (static_cast<unsigned int> (cloud_arg->size ()));
 
         // serialize octree
         if (i_frame_)
@@ -222,7 +222,7 @@ namespace pcl
 
       // assign point cloud properties
       output_->height = 1;
-      output_->width = static_cast<std::uint32_t> (cloud_arg->points.size ());
+      output_->width = cloud_arg->size ();
       output_->is_dense = false;
 
       if (b_show_statistics_)
@@ -509,7 +509,6 @@ namespace pcl
     OctreePointCloudCompression<PointT, LeafT, BranchT, OctreeT>::deserializeTreeCallback (LeafT&,
         const OctreeKey& key_arg)
     {
-      double lowerVoxelCorner[3];
       PointT newPoint;
 
       std::size_t pointCount = 1;
@@ -517,7 +516,7 @@ namespace pcl
       if (!do_voxel_grid_enDecoding_)
       {
         // get current cloud size
-        std::size_t cloudSize = output_->points.size ();
+        const auto cloudSize = output_->size ();
 
         // get amount of point to be decoded
         pointCount = *point_count_data_vector_iterator_;
@@ -528,6 +527,7 @@ namespace pcl
           output_->points.push_back (newPoint);
 
         // calculcate position of lower voxel corner
+        double lowerVoxelCorner[3];
         lowerVoxelCorner[0] = static_cast<double> (key_arg.x) * this->resolution_ + this->min_x_;
         lowerVoxelCorner[1] = static_cast<double> (key_arg.y) * this->resolution_ + this->min_y_;
         lowerVoxelCorner[2] = static_cast<double> (key_arg.z) * this->resolution_ + this->min_z_;
@@ -550,12 +550,12 @@ namespace pcl
       {
         if (data_with_color_)
           // decode color information
-          color_coder_.decodePoints (output_, output_->points.size () - pointCount,
-                                    output_->points.size (), point_color_offset_);
+          color_coder_.decodePoints (output_, output_->size () - pointCount,
+                                    output_->size (), point_color_offset_);
         else
           // set default color information
-          color_coder_.setDefaultColor (output_, output_->points.size () - pointCount,
-                                       output_->points.size (), point_color_offset_);
+          color_coder_.setDefaultColor (output_, output_->size () - pointCount,
+                                       output_->size (), point_color_offset_);
       }
     }
   }

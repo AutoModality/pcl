@@ -37,7 +37,7 @@
  *
  */
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/pcl_tests.h>
@@ -56,7 +56,7 @@ TEST (PointCloud, size)
 TEST (PointCloud, sq_brackets_wrapper)
 {
   for (std::uint32_t i = 0; i < size; ++i)
-    EXPECT_EQ_VECTORS (cloud.points[i].getVector3fMap (),
+    EXPECT_EQ_VECTORS (cloud[i].getVector3fMap (),
                        cloud[i].getVector3fMap ());
 }
 

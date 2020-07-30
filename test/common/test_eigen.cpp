@@ -37,7 +37,7 @@
  *
  */
 
-#include <gtest/gtest.h>
+#include <pcl/test/gtest.h>
 
 #include <random>
 
@@ -45,7 +45,6 @@
 #include <pcl/common/eigen.h>
 
 using namespace pcl;
-using namespace std;
 
 namespace
 {
