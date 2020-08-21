@@ -23,3 +23,18 @@ From the root of the project:
 ```
 fakeroot debian/rules binary
 ```
+
+
+### Clean
+
+Rebuild debian artifact:
+
+```
+debian/rules clean
+```
+
+Recompile:
+
+```
+rm -rf build
+```
