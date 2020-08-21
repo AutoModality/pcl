@@ -10,4 +10,4 @@ Package: pcl
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
 
-Description: 
+Description: Point Cloud Library debian packaging

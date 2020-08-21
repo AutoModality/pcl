@@ -1,5 +1,15 @@
 #!/bin/bash
+PACKAGE=pcl
+
+echo "We are $(pwd)"
+CURDIR=$(readlink -f $(pwd))
+WORKSPACE=$(readlink -f ./catkin_ws)
+echo "AM_PLATFORM is ${AM_PLATFORM}"
 
 
-echo "Configuring..."
-
+if [[ ! -f CMakeLists.txt ]] ; then
+   echo "CMakeLists.txt is REQUIRED"
+   exit 1
+fi
+echo "PWD: $(pwd)"
+echo "Changelog $(cat debian/changelog)"

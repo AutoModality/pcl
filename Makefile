@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-	echo "Makefiles" && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j2 
+	mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j2 
 
 default:
 
@@ -11,5 +11,5 @@ install:
 	cp -f -p -r build/include $(DESTDIR)/usr/bin 
 
 clean:
-	rm -rf catkin_ws
+	rm -rf build
 	rm -rf *.deb
