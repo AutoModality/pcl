@@ -1,2 +1,3 @@
 debian/pcl.debhelper.log
 build.bak
+debian/pcl*
