@@ -3,7 +3,7 @@ SHELL := /bin/bash
 BUILD_DIR=build
 INSTALL_DIR=$(DESTDIR)/usr/
 default:
-	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j2
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_GPU=ON -DBUILD_CUDA=OFF -DCUDA_ARCH_BIN=6.2 -DCUDA_ARCH_PTX=6.2 -DCMAKE_INSTALL_PREFIX=/usr .. && make -j3
 	echo "Done Making $(DESTDIR)" 
 
 install:
