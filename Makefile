@@ -1,19 +1,16 @@
 SHELL := /bin/bash
 
 BUILD_DIR=build
+INSTALL_DIR=$(DESTDIR)/usr/
 default:
 	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j2
-
+	echo "Done Making $(DESTDIR)" 
 
 install:
-	rm -rf build/install
-	mkdir -p build/install
-	install -d $(DESTDIR)/usr/
-	cp -f -p -r build/install/lib $(DESTDIR)/usr/bin || echo "Did not copy lib directory"
-	cp -f -p -r build/install/share $(DESTDIR)/usr/bin || echo "Did not copy share directory"
-	cp -f -p -r build/install/include $(DESTDIR)/usr/bin || echo "Did not copy include directory"
-	rm -f $(DESTDIR)/usr/bin/lib/pkgconfig/catkin_tools_prebuild.pc
+	install -d ${INSTALL_DIR}
+	cp -f -p -r ${BUILD_DIR}/lib ${INSTALL_DIR} 
+	cp -f -p -r ${BUILD_DIR}/bin ${INSTALL_DIR}
+	cp -f -p -r ${BUILD_DIR}/include ${INSTALL_DIR}
 
 clean:
-	rm -rf build
-	rm -rf *.deb
+	rm -rf ../*.deb
