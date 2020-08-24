@@ -8,9 +8,10 @@ SHARE_DIR=/share
 SHARE_STAGING_DIR=${STAGING_DIR}/${SHARE_DIR}
 INCLUDE_DIR=/include
 INCLUDE_STAGING_DIR=${STAGING_DIR}/${INCLUDE_DIR}
+GPU_OPTIONS=-DBUILD_GPU=ON -DBUILD_CUDA=OFF -DCUDA_ARCH_BIN=6.2 -DCUDA_ARCH_PTX=6.2
 
 default:
-	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} .. && make -j8 && sudo make -j8 install 
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${GPU_OPTIONS} .. && make -j8 && sudo make -j8 install 
 
 
 install:
