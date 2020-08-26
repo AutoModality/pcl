@@ -14,7 +14,11 @@ if(BUILD_GPU AND CUDA_FOUND)
       SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-but-set-variable")
     endif()
 	endif()
-	       
+	
+	# disable format security to avoid compile error https://stackoverflow.com/a/17260886/721000
+	# capture.cpp:139:31: error: format not a string literal and no format arguments [-Werror=format-security]
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-format-security")
+       
 	collect_subproject_directory_names("${CMAKE_CURRENT_SOURCE_DIR}" "CMakeLists.txt" PCL_GPU_MODULES_NAMES PCL_GPU_MODULES_DIRS)
 	set(PCL_GPU_MODULES_NAMES_UNSORTED ${PCL_GPU_MODULES_NAMES})
 	topological_sort(PCL_GPU_MODULES_NAMES PCL_ _DEPENDS)
