@@ -20,7 +20,7 @@ Prerequisites:
 ```
 
 From the root of the project:
-```https://cloudsmith.io/~automodality/repos/release/packages
+```
 fakeroot debian/rules binary
 ```
 

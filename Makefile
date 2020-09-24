@@ -25,3 +25,4 @@ install:
 
 clean:
 	rm -rf ../*.deb
+	rm -rf  ${BUILD_DIR}
