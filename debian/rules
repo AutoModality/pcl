@@ -1,5 +1,22 @@
 #!/usr/bin/make -f
 export DH_VERBOSE = 1
 
-%:
-	dh $@
+BUILD_DIR=build
+INSTALL_DIR=install
+GPU_OPTIONS=-DBUILD_GPU=ON -DBUILD_CUDA=OFF -DCUDA_ARCH_BIN=6.2 -DCUDA_ARCH_PTX=6.2
+
+
+build:
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr ${GPU_OPTIONS} .. && make -j6 && sudo make -j6 ${INSTALL_DIR}
+
+binary:
+	dh binary
+
+install:
+	dh install -d ${BUILD_DIR}/${INSTALL_DIR}
+
+clean:
+	rm -rf ../*.deb
+	rm -rf *.deb
+	#rm -rf  ${BUILD_DIR}
+
