@@ -15,8 +15,7 @@ export PATH=$PATH:$CUDA_HOME/bin
 Prerequisites:
 
 ```
-  apt-get -y \
-      debhelper 
+  apt-get install -y debhelper 
 ```
 
 From the root of the project:
