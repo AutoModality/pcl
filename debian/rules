@@ -1,4 +1,17 @@
 #!/usr/bin/make -f
 
+
+BUILD_DIR=build
+INSTALL_DIR=debian/pcl/usr
+
+GPU_OPTIONS=-DBUILD_GPU=ON -DBUILD_CUDA=OFF -DCUDA_ARCH_BIN=6.2 -DCUDA_ARCH_PTX=6.2
 %:
-	dh $@ 
+	mkdir -p ${BUILD_DIR} && cd ${BUILD_DIR} && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ${GPU_OPTIONS} .. && make -j8 && sudo make DESTDIR=../debian/pcl install
+	dh_install
+	dh_gencontrol
+	dh_link
+	dh_builddeb --destdir=.
+
+clean:
+	rm -f *.deb
+	dh clean

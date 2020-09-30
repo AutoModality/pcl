@@ -1,2 +1,5 @@
 obj-x86_64-linux-gnu/
 debian/pcl.debhelper.log
+debian/pcl/
+*.deb
+debian/*.substvars
