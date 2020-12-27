@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>pcl</name>
+  <version>0.0.0</version>
+  <description>Point Cloud Library</description>
+  <maintainer email="dev@automodality.com">AutoModality</maintainer>
+  <license>BSD</license>
+</package>

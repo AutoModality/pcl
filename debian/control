@@ -1,17 +1,19 @@
 Source: pcl
 Section: misc
-Priority: extra
-Maintainer: info <info@automodality.com>
+Priority: optional
+Maintainer: AutoModality <dev@automodality.com>
 Build-Depends: debhelper (>= 9.0.0),
     libeigen3-dev,
 	libflann-dev,
     libvtk6-dev,
 Homepage: https://github.com/AutoModality/pcl
 Standards-Version: 3.9.2
+
 Package: pcl
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, 
+Description: Point Cloud Library
     libeigen3-dev,
 	libflann-dev,
     libvtk6-dev,
-Description: Point Cloud Library debian packaging
+	Description: Point Cloud Library debian packaging
