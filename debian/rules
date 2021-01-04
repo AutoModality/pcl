@@ -29,8 +29,8 @@ override_dh_auto_configure:
 	dh_auto_configure -- \
 	    -DBUILD_GPU=ON \
 		-DBUILD_CUDA=OFF \
-		-DCUDA_ARCH_BIN=7.2 \
-		-DCUDA_ARCH_PTX=7.2 \
+		-DCUDA_ARCH_BIN=5.0 5.2 5.3 6.0 6.1 6.2 7.0 7.2 7.5 \
+		-DCUDA_ARCH_PTX=5.0 5.2 5.3 6.0 6.1 6.2 7.0 7.2 7.5 \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCATKIN_BUILD_BINARY_PACKAGE="1" \
 		-DCMAKE_INSTALL_PREFIX="/usr" \
